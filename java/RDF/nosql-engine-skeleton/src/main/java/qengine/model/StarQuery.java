@@ -1,4 +1,4 @@
-package qengine.model;
+package main.java.qengine.model;
 
 import fr.boreal.model.formula.api.FOFormulaConjunction;
 import fr.boreal.model.formula.factory.FOFormulaFactory;

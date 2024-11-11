@@ -1,4 +1,4 @@
-package qengine.storage;
+package main.java.qengine.storage;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -6,8 +6,8 @@ import java.util.stream.Stream;
 
 import fr.boreal.model.logicalElements.api.Atom;
 import fr.boreal.model.logicalElements.api.Substitution;
-import qengine.model.RDFAtom;
-import qengine.model.StarQuery;
+import main.java.qengine.model.RDFAtom;
+import main.java.qengine.model.StarQuery;
 
 /**
  * Contrat pour un système de stockage de données RDF

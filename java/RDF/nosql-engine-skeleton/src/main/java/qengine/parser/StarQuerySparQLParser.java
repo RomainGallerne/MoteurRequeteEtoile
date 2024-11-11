@@ -1,4 +1,4 @@
-package qengine.parser;
+package main.java.qengine.parser;
 
 import fr.boreal.io.api.Parser;
 import fr.boreal.model.logicalElements.api.Term;
@@ -14,8 +14,8 @@ import org.eclipse.rdf4j.query.algebra.helpers.StatementPatternCollector;
 import org.eclipse.rdf4j.query.parser.ParsedQuery;
 import org.eclipse.rdf4j.query.parser.sparql.SPARQLParser;
 
-import qengine.model.RDFAtom;
-import qengine.model.StarQuery;
+import main.java.qengine.model.RDFAtom;
+import main.java.qengine.model.StarQuery;
 
 import java.io.IOException;
 import java.nio.file.Files;

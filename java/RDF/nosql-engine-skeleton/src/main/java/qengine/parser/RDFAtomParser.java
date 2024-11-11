@@ -1,4 +1,4 @@
-package qengine.parser;
+package main.java.qengine.parser;
 
 import java.io.File;
 import java.io.FileReader;
@@ -14,7 +14,7 @@ import fr.boreal.io.rdf.RDFTranslationMode;
 import fr.boreal.model.logicalElements.api.Atom;
 import fr.boreal.model.logicalElements.api.Predicate;
 import fr.boreal.model.logicalElements.factory.impl.SameObjectPredicateFactory;
-import qengine.model.RDFAtom;
+import main.java.qengine.model.RDFAtom;
 
 /**
  * Parser pour transformer des triplets RDF en RDFAtom.

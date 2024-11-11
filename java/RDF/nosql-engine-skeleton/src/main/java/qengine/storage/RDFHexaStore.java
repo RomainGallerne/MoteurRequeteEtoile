@@ -1,9 +1,9 @@
-package qengine.storage;
+package main.java.qengine.storage;
 
 import fr.boreal.model.logicalElements.api.*;
 import org.apache.commons.lang3.NotImplementedException;
-import qengine.model.RDFAtom;
-import qengine.model.StarQuery;
+import main.java.qengine.model.RDFAtom;
+import main.java.qengine.model.StarQuery;
 
 import java.util.*;
 import java.util.stream.IntStream;

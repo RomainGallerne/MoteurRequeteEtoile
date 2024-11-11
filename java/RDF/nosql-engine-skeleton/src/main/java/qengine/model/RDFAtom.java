@@ -1,4 +1,4 @@
-package qengine.model;
+package main.java.qengine.model;
 
 import fr.boreal.model.logicalElements.api.Atom;
 import fr.boreal.model.logicalElements.api.Predicate;

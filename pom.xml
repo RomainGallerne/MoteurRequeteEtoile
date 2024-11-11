@@ -13,7 +13,7 @@
 	</properties>
 
 	<build>
-		<sourceDirectory>${basedir}/java</sourceDirectory>
+		<sourceDirectory>${basedir}/java/RDF/nosql-engine-skeleton/src</sourceDirectory>
 		<plugins>
 
 			<plugin>

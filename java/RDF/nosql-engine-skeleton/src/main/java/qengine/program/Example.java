@@ -1,4 +1,4 @@
-package qengine.program;
+package main.java.qengine.program;
 
 import fr.boreal.model.formula.api.FOFormula;
 import fr.boreal.model.formula.api.FOFormulaConjunction;
@@ -10,10 +10,10 @@ import fr.boreal.model.queryEvaluation.api.FOQueryEvaluator;
 import fr.boreal.query_evaluation.generic.GenericFOQueryEvaluator;
 import fr.boreal.storage.natives.SimpleInMemoryGraphStore;
 import org.eclipse.rdf4j.rio.RDFFormat;
-import qengine.model.RDFAtom;
-import qengine.model.StarQuery;
-import qengine.parser.RDFAtomParser;
-import qengine.parser.StarQuerySparQLParser;
+import main.java.qengine.model.RDFAtom;
+import main.java.qengine.model.StarQuery;
+import main.java.qengine.parser.RDFAtomParser;
+import main.java.qengine.parser.StarQuerySparQLParser;
 
 import java.io.FileReader;
 import java.io.IOException;
