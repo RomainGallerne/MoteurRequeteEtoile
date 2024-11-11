@@ -1,4 +1,4 @@
-package qengine.model;
+package test.java.qengine.model;
 
 import fr.boreal.model.logicalElements.api.Atom;
 import fr.boreal.model.logicalElements.api.Term;
@@ -6,6 +6,7 @@ import fr.boreal.model.logicalElements.factory.api.TermFactory;
 import fr.boreal.model.logicalElements.factory.impl.SameObjectPredicateFactory;
 import fr.boreal.model.logicalElements.factory.impl.SameObjectTermFactory;
 import fr.boreal.model.logicalElements.impl.AtomImpl;
+import main.java.qengine.model.RDFAtom;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;

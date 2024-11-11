@@ -1,11 +1,11 @@
-package qengine.storage;
+package test.java.qengine.storage;
 
 import fr.boreal.model.logicalElements.api.*;
 import fr.boreal.model.logicalElements.factory.impl.SameObjectTermFactory;
 import fr.boreal.model.logicalElements.impl.SubstitutionImpl;
 import org.apache.commons.lang3.NotImplementedException;
-import qengine.model.RDFAtom;
-import qengine.storage.RDFHexaStore;
+import main.java.qengine.model.RDFAtom;
+import main.java.qengine.storage.RDFHexaStore;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;

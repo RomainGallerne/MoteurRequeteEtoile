@@ -1,8 +1,8 @@
-package qengine.parser;
+package test.java.qengine.parser;
 
 import org.junit.jupiter.api.Test;
-import qengine.model.RDFAtom;
-import qengine.parser.RDFAtomParser;
+import main.java.qengine.model.RDFAtom;
+import main.java.qengine.parser.RDFAtomParser;
 
 import java.io.File;
 import java.util.List;

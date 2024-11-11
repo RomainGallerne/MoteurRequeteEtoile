@@ -1,4 +1,4 @@
-package qengine.model;
+package test.java.qengine.model;
 
 import fr.boreal.model.formula.api.FOFormulaConjunction;
 import fr.boreal.model.logicalElements.api.Term;
@@ -6,6 +6,8 @@ import fr.boreal.model.logicalElements.api.Variable;
 import fr.boreal.model.logicalElements.factory.api.TermFactory;
 import fr.boreal.model.logicalElements.factory.impl.SameObjectTermFactory;
 import fr.boreal.model.query.api.FOQuery;
+import main.java.qengine.model.RDFAtom;
+import main.java.qengine.model.StarQuery;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collection;

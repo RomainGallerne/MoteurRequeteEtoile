@@ -1,11 +1,12 @@
-package qengine.parser;
+package test.java.qengine.parser;
 
 import fr.boreal.model.logicalElements.api.Term;
 import fr.boreal.model.logicalElements.api.Variable;
 import fr.boreal.model.query.api.Query;
+import main.java.qengine.parser.StarQuerySparQLParser;
 import org.junit.jupiter.api.Test;
-import qengine.model.RDFAtom;
-import qengine.model.StarQuery;
+import main.java.qengine.model.RDFAtom;
+import main.java.qengine.model.StarQuery;
 
 import java.io.IOException;
 import java.util.Collection;
