@@ -13,6 +13,7 @@
 	</properties>
 
 	<build>
+		<sourceDirectory>${basedir}/java</sourceDirectory>
 		<plugins>
 
 			<plugin>
