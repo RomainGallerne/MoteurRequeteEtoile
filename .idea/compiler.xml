@@ -6,11 +6,6 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-      </profile>
-      <profile name="Annotation profile for qengine" enabled="true">
-        <sourceOutputDir name="java/target/generated-sources/annotations" />
-        <sourceTestOutputDir name="java/target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
         <module name="qengine" />
       </profile>
     </annotationProcessing>
