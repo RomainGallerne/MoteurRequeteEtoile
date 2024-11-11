@@ -1,6 +1,8 @@
 package main.java.qengine.model;
 
 import fr.boreal.model.logicalElements.api.Term;
+import fr.boreal.model.logicalElements.impl.ConstantImpl;
+import fr.boreal.model.logicalElements.impl.identityObjects.IdentityLiteralImpl;
 import main.java.qengine.parser.RDFAtomParser;
 import org.eclipse.rdf4j.rio.RDFFormat;
 
@@ -66,7 +68,7 @@ public class Dictionnary {
 
     /// tester le modèle objet Dictionnaire avec un fichier exemple
     public static void main(String[] args) throws IOException {
-        FileReader rdfFile = new FileReader("java/RDF/nosql-engine-skeleton/src/test/resources/sample_data.nt");
+        FileReader rdfFile = new FileReader("java/RDF/nosql-engine-skeleton/src/test/resources/sample_data2.nt");
         List<RDFAtom> rdfAtoms = new ArrayList<>();
 
         try (RDFAtomParser rdfAtomParser = new RDFAtomParser(rdfFile, RDFFormat.NTRIPLES)) {
@@ -88,9 +90,12 @@ public class Dictionnary {
             }
         }
 
+        dictionnary.createCodex();
+
         System.out.println("==================================");
-        System.out.println("try getValue(2) \nexpected: Charlie\n"+dictionnary.getValue(2));
-        //System.out.println("try getKey(\"estAmis\") \n expected: 6 \n"+dictionnary.getKey(new Term("estAmis"));
+        System.out.println("try getValue(2) \nexpected: Charlie\nresult: "+dictionnary.getValue(2));
+        System.out.println();
+        System.out.println("try getKey(\"estAmis\") \nexpected: 6\nresult: "+dictionnary.getKey(new IdentityLiteralImpl("http://example.org/estAmis")));
         System.out.println("==================================");
     }
 }
