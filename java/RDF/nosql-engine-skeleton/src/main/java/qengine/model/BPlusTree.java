@@ -70,19 +70,32 @@ public class BPlusTree {
     }
 
     public List<int[]> searchPrefix(int[] prefix) {
+        Set<List<Integer>> resultsSet = new HashSet<>();
         List<int[]> results = new ArrayList<>();
-        searchPrefix(this.root, prefix, results);
+        searchPrefix(this.root, prefix, resultsSet);
+
+        for (List<Integer> resultList : resultsSet) {
+            int[] result = new int[resultList.size()];
+            for (int i = 0; i < resultList.size(); i++) {
+                result[i] = resultList.get(i);
+            }
+            results.add(result);
+        }
         return results;
     }
 
-    private void searchPrefix(BPlusTreeNode node, int[] prefix, List<int[]> results) {
+    private void searchPrefix(BPlusTreeNode node, int[] prefix, Set<List<Integer>> resultsSet) {
         int i = 0;
         while (i < node.getKeys().size()) {
             int[] key = node.getKeys().get(i);
 
             if (isPrefix(key, prefix)) {
-                if (matchesPrefix(key, prefix) && node.isLeaf()) {
-                    results.add(key);
+                if (matchesPrefix(key, prefix)) {
+                    List<Integer> resultList = new ArrayList<>();
+                    for (int k : key) {
+                        resultList.add(k);
+                    }
+                    resultsSet.add(resultList);
                 }
             } else if (key[0] > prefix[0]) {
                 break;
@@ -92,16 +105,29 @@ public class BPlusTree {
 
         if (!node.isLeaf()) {
             for (BPlusTreeNode child : node.getChildren()) {
-                searchPrefix(child, prefix, results);
+                searchPrefix(child, prefix, resultsSet);
+            }
+        } else {
+            for (int[] key : node.getKeys()) {
+                if (isPrefix(key, prefix)) {
+                    List<Integer> resultList = new ArrayList<>();
+                    for (int k : key) {
+                        resultList.add(k);
+                    }
+                    resultsSet.add(resultList);
+                }
             }
         }
     }
 
+
     private boolean isPrefix(int[] triplet, int[] prefix) {
+        // Vérifie si triplet commence par le préfixe
         return Arrays.equals(Arrays.copyOfRange(triplet, 0, Math.min(prefix.length, triplet.length)), prefix);
     }
 
     private boolean matchesPrefix(int[] triplet, int[] prefix) {
+        // Vérifie si le triplet correspond exactement au préfixe
         return Arrays.equals(Arrays.copyOfRange(triplet, 0, prefix.length), prefix);
     }
 

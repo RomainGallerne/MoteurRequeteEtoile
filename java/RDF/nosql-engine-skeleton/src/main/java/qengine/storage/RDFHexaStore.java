@@ -1,6 +1,7 @@
 package main.java.qengine.storage;
 
 import fr.boreal.model.logicalElements.api.*;
+import fr.boreal.model.logicalElements.factory.impl.SameObjectTermFactory;
 import fr.boreal.model.logicalElements.impl.SubstitutionImpl;
 import fr.boreal.model.logicalElements.impl.VariableImpl;
 import fr.boreal.model.logicalElements.impl.identityObjects.IdentityLiteralImpl;
@@ -51,20 +52,22 @@ public class RDFHexaStore implements RDFStorage {
 
         List<int[]> results = bPlusTree.searchPrefix(triplet);
 
-        List<Substitution> substitutions = new ArrayList<>();
+        Set<Substitution> uniqueSubstitutions = new HashSet<>();
+
         for (int[] result : results) {
             Substitution substitution = new SubstitutionImpl();
 
             for (int i = 0; i < result.length; i++) {
-                Variable variable = new VariableImpl("var" + i);
-                Term term = new IdentityLiteralImpl(result[i]);
-                substitution.add(variable, term);
+
+                if (atom.getTerms()[i] instanceof Variable) {
+                    substitution.add((Variable) atom.getTerms()[i], dictionnary.getValue(result[i]));
+                }
             }
 
-            substitutions.add(substitution);
+            uniqueSubstitutions.add(substitution);
         }
 
-        return substitutions.iterator();
+        return uniqueSubstitutions.iterator();
     }
 
     @Override
@@ -79,13 +82,15 @@ public class RDFHexaStore implements RDFStorage {
 
     private void setup() {
         dictionnary.createCodex();
-        BPlusTree bPlusTree = new BPlusTree(3);
+        this.bPlusTree = new BPlusTree(3);
 
         List<int[]> listeTripletCODE = rdfAtoms.stream()
                 .map(dictionnary::encodeTriplet)
                 .collect(Collectors.toList());
 
-        listeTripletCODE.stream().forEach(bPlusTree::insert);
+        listeTripletCODE.stream().forEach(this.bPlusTree::insert);
+
+        this.bPlusTree.printBPlusTree();
     }
 
     public static void main(String[] args) throws IOException {
@@ -121,6 +126,7 @@ public class RDFHexaStore implements RDFStorage {
 
         bPlusTree.printBPlusTree();
 
+        /*
         System.out.println("Recherche avec préfixe (1,): ");
         List<int[]> results1 = bPlusTree.searchPrefix(new int[]{1});
         for (int[] result : results1) {
@@ -138,5 +144,7 @@ public class RDFHexaStore implements RDFStorage {
         for (int[] result : results3) {
             System.out.println(Arrays.toString(result));
         }
+
+         */
     }
 }

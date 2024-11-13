@@ -1,6 +1,7 @@
 package main.java.qengine.model;
 
 import fr.boreal.model.logicalElements.api.Term;
+import fr.boreal.model.logicalElements.api.Variable;
 import fr.boreal.model.logicalElements.impl.ConstantImpl;
 import fr.boreal.model.logicalElements.impl.identityObjects.IdentityLiteralImpl;
 import main.java.qengine.parser.RDFAtomParser;
@@ -49,7 +50,7 @@ public class Dictionnary {
     /// Donne la valeur depuis une clé.
     ///
     /// Accès instantanée -> O(1)
-    private Term getValue(int index) {
+    public Term getValue(int index) {
         return (Term) dictionary.keySet().toArray()[index];
     }
 
@@ -58,6 +59,7 @@ public class Dictionnary {
     /// Accès max en O(n) mais à calculer précisément
     public int[] encodeTriplet(RDFAtom triplet) {
         return Arrays.stream(triplet.getTerms())
+                .filter(term -> !(term instanceof Variable && term.label().startsWith("?")))
                 .mapToInt(this::getKey)
                 .toArray();
     }
