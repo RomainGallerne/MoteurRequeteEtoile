@@ -30,10 +30,13 @@ public class RDFHexaStore implements RDFStorage {
 
     @Override
     public boolean add(RDFAtom atom) {
-        Arrays.stream(atom.getTerms())
-                .forEach(dictionnary::addTerm);
+        boolean res = rdfAtoms.add(atom);
+        if(res) {
+            Arrays.stream(atom.getTerms())
+                    .forEach(dictionnary::addTerm);
+        }
 
-        return rdfAtoms.add(atom);
+        return res;
     }
 
     @Override
