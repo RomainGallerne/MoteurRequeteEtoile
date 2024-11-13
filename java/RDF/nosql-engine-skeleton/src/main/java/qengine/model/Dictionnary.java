@@ -22,7 +22,7 @@ public class Dictionnary {
     /// Organise les terms en fonction de leur fréquence par ordre décroissant.
     ///
     /// Créé l'ordre pour accéder plus rapidement à un élément selon sa récurrence
-    private void createCodex() {
+    public void createCodex() {
         List<Map.Entry<Term, Integer>> entries = new ArrayList<>(dictionary.entrySet());
 
         entries.sort((entry1, entry2) -> Integer.compare(entry2.getValue(), entry1.getValue()));
@@ -97,5 +97,10 @@ public class Dictionnary {
         System.out.println();
         System.out.println("try getKey(\"estAmis\") \nexpected: 6\nresult: "+dictionnary.getKey(new IdentityLiteralImpl("http://example.org/estAmis")));
         System.out.println("==================================");
+
+        System.out.println("Encoded RDF Atoms:\n");
+        rdfAtoms.stream()
+                .map(dictionnary::encodeTriplet)
+                .forEach(encodedTriplet -> System.out.println(Arrays.toString(encodedTriplet)));
     }
 }
