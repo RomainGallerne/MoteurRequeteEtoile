@@ -15,6 +15,9 @@ import java.util.stream.IntStream;
 public class Dictionnary {
     private LinkedHashMap<Term, Integer> dictionary = new LinkedHashMap<>();
 
+    /// Ajoute une term au dictionnaire s'il nest pas présent
+    ///
+    /// Incrémente sa fréquence sinon
     public void addTerm(Term term) {
         dictionary.put(term, dictionary.getOrDefault(term, 0) + 1);
     }
