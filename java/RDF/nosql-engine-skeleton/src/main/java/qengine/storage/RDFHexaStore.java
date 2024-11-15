@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
  */
 public class RDFHexaStore implements RDFStorage {
     private Dictionnary dictionnary = new Dictionnary();
-    private ArrayList<RDFAtom> rdfAtoms = new ArrayList<>();
+    private Set<RDFAtom> rdfAtoms = new HashSet<>();
     private BPlusTree bPlusTree;
 
     @Override
@@ -91,60 +91,5 @@ public class RDFHexaStore implements RDFStorage {
         listeTripletCODE.stream().forEach(this.bPlusTree::insert);
 
         this.bPlusTree.printBPlusTree();
-    }
-
-    public static void main(String[] args) throws IOException {
-        FileReader rdfFile = new FileReader("java/RDF/nosql-engine-skeleton/src/test/resources/sample_data2.nt");
-        List<RDFAtom> rdfAtoms = new ArrayList<>();
-
-        try (RDFAtomParser rdfAtomParser = new RDFAtomParser(rdfFile, RDFFormat.NTRIPLES)) {
-            int count = 0;
-            while (rdfAtomParser.hasNext()) {
-                RDFAtom atom = rdfAtomParser.next();
-                rdfAtoms.add(atom);  // Stocker l'atome dans la collection
-                System.out.println("RDF Atom #" + (++count) + ": " + atom);
-            }
-            System.out.println("Total RDF Atoms parsed: " + count);
-        }
-
-        Dictionnary dictionnary = new Dictionnary();
-
-        for (RDFAtom rdfAtom : rdfAtoms) {
-            for (Term term : rdfAtom.getTerms()) {
-                dictionnary.addTerm(term);
-            }
-        }
-
-        dictionnary.createCodex();
-
-        List<int[]> listeTripletCODE = rdfAtoms.stream()
-                .map(dictionnary::encodeTriplet)
-                .collect(Collectors.toList());
-
-        BPlusTree bPlusTree = new BPlusTree(3);
-        listeTripletCODE.stream().forEach(bPlusTree::insert);
-
-        bPlusTree.printBPlusTree();
-
-        /*
-        System.out.println("Recherche avec préfixe (1,): ");
-        List<int[]> results1 = bPlusTree.searchPrefix(new int[]{1});
-        for (int[] result : results1) {
-            System.out.println(Arrays.toString(result));
-        }
-
-        System.out.println("Recherche avec préfixe (1, 9): ");
-        List<int[]> results2 = bPlusTree.searchPrefix(new int[]{1, 9});
-        for (int[] result : results2) {
-            System.out.println(Arrays.toString(result));
-        }
-
-        System.out.println("Recherche avec préfixe (2,): ");
-        List<int[]> results3 = bPlusTree.searchPrefix(new int[]{2});
-        for (int[] result : results3) {
-            System.out.println(Arrays.toString(result));
-        }
-
-         */
     }
 }

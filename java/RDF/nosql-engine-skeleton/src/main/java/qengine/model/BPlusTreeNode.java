@@ -45,8 +45,4 @@ public class BPlusTreeNode {
     public void addChild(BPlusTreeNode child) {
         children.add(child);
     }
-
-    public void addKey(int[] key) {
-        keys.add(key);
-    }
 }

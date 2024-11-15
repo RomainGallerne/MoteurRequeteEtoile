@@ -40,7 +40,7 @@ public class Dictionnary {
     /// Donne la clé dans le dictionnaire depuis un terme.
     ///
     /// Accès max en O(n) mais à calculer précisément
-    private int getKey(Term term) {
+    public int getKey(Term term) {
         return IntStream.range(0, new ArrayList<>(dictionary.keySet()).size())
                 .filter(i -> new ArrayList<>(dictionary.keySet()).get(i).equals(term))
                 .findFirst()
@@ -69,43 +69,5 @@ public class Dictionnary {
     /// Accès en 3*O(1) = O(1)
     public RDFAtom decodeTriplet(int[] triplet) {
         return new RDFAtom(getValue(triplet[0]), getValue(triplet[1]), getValue(triplet[2]));
-    }
-
-    /// tester le modèle objet Dictionnaire avec un fichier exemple
-    public static void main(String[] args) throws IOException {
-        FileReader rdfFile = new FileReader("java/RDF/nosql-engine-skeleton/src/test/resources/sample_data2.nt");
-        List<RDFAtom> rdfAtoms = new ArrayList<>();
-
-        try (RDFAtomParser rdfAtomParser = new RDFAtomParser(rdfFile, RDFFormat.NTRIPLES)) {
-            int count = 0;
-            while (rdfAtomParser.hasNext()) {
-                RDFAtom atom = rdfAtomParser.next();
-                rdfAtoms.add(atom);  // Stocker l'atome dans la collection
-                System.out.println("RDF Atom #" + (++count) + ": " + atom);
-            }
-            System.out.println("Total RDF Atoms parsed: " + count);
-        }
-
-        Dictionnary dictionnary = new Dictionnary();
-
-        for (RDFAtom rdfAtom : rdfAtoms) {
-            System.out.println(rdfAtom);
-            for (Term term : rdfAtom.getTerms()) {
-                dictionnary.addTerm(term);
-            }
-        }
-
-        dictionnary.createCodex();
-
-        System.out.println("==================================");
-        System.out.println("try getValue(2) \nexpected: Charlie\nresult: "+dictionnary.getValue(2));
-        System.out.println();
-        System.out.println("try getKey(\"estAmis\") \nexpected: 6\nresult: "+dictionnary.getKey(new IdentityLiteralImpl("http://example.org/estAmis")));
-        System.out.println("==================================");
-
-        System.out.println("Encoded RDF Atoms:\n");
-        rdfAtoms.stream()
-                .map(dictionnary::encodeTriplet)
-                .forEach(encodedTriplet -> System.out.println(Arrays.toString(encodedTriplet)));
     }
 }
