@@ -15,9 +15,11 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class RDFAtomParserTest {
 
+    private static String SRC_DIR = "java/RDF/nosql-engine-skeleton/src/";
+
     @Test
     void testParseValidRDFAtoms() throws Exception {
-        File rdfFile = new File("src/test/resources/sample_data.nt");
+        File rdfFile = new File(SRC_DIR+"test/resources/sample_data.nt");
         try (RDFAtomParser parser = new RDFAtomParser(rdfFile)) {
             assertTrue(parser.hasNext(), "Le parser devrait trouver des triplets RDF.");
 
@@ -37,7 +39,7 @@ class RDFAtomParserTest {
 
     @Test
     void testParseEmptyFile() throws Exception {
-        File emptyFile = new File("src/test/resources/empty.nt");
+        File emptyFile = new File(SRC_DIR+"test/resources/empty.nt");
         try (RDFAtomParser parser = new RDFAtomParser(emptyFile)) {
             assertFalse(parser.hasNext(), "Le parser ne devrait pas trouver de triplets dans un fichier vide.");
         }
@@ -45,7 +47,7 @@ class RDFAtomParserTest {
 
     @Test
     void testMultipleCloseCalls() throws Exception {
-        File rdfFile = new File("src/test/resources/sample_data.nt");
+        File rdfFile = new File(SRC_DIR+"test/resources/sample_data.nt");
         try (RDFAtomParser parser = new RDFAtomParser(rdfFile)) {
             assertTrue(parser.hasNext(), "Le parser devrait trouver des triplets RDF.");
             parser.close();
@@ -55,7 +57,7 @@ class RDFAtomParserTest {
 
     @Test
     void testNextWithoutHasNext() throws Exception {
-        File rdfFile = new File("src/test/resources/sample_data.nt");
+        File rdfFile = new File(SRC_DIR+"test/resources/sample_data.nt");
         try (RDFAtomParser parser = new RDFAtomParser(rdfFile)) {
             RDFAtom atom1 = parser.next();
             assertEquals("http://example.org/subject1", atom1.getTerms()[0].label(), "Sujet incorrect.");
@@ -64,7 +66,7 @@ class RDFAtomParserTest {
 
     @Test
     void testParserExhaustion() throws Exception {
-        File rdfFile = new File("src/test/resources/sample_data.nt");
+        File rdfFile = new File(SRC_DIR+"test/resources/sample_data.nt");
         try (RDFAtomParser parser = new RDFAtomParser(rdfFile)) {
             while (parser.hasNext()) {
                 parser.next();
@@ -76,7 +78,7 @@ class RDFAtomParserTest {
 
     @Test
     void testGetRDFAtoms() throws Exception {
-        File rdfFile = new File("src/test/resources/sample_data.nt");
+        File rdfFile = new File(SRC_DIR+"test/resources/sample_data.nt");
         try (RDFAtomParser parser = new RDFAtomParser(rdfFile)) {
             // Utiliser la méthode getRDFAtoms pour récupérer les atomes
             List<RDFAtom> rdfAtoms = parser.getRDFAtoms().collect(Collectors.toList());
