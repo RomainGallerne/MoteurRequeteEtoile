@@ -6,6 +6,7 @@ import fr.boreal.model.logicalElements.api.Term;
 import fr.boreal.model.logicalElements.factory.impl.SameObjectPredicateFactory;
 import fr.boreal.model.logicalElements.impl.AtomImpl;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -66,11 +67,9 @@ public class RDFAtom extends AtomImpl {
     public Term getTripleSubject() {
         return this.getTerm(0);
     }
-
     public Term getTriplePredicate() {
         return this.getTerm(1);
     }
-
     public Term getTripleObject() {
         return this.getTerm(2);
     }

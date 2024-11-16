@@ -36,11 +36,11 @@ public interface RDFStorage {
      */
     Iterator<Substitution> match(StarQuery q);
 
-    /**
-     * Retourne le nombre d'atomes dans le Store.
-     *
-     * @return le nombre d'atomes
-     */
+//    /**
+//     * Retourne le nombre d'atomes dans le Store.
+//     *
+//     * @return le nombre d'atomes
+//     */
     long size();
 
     /**

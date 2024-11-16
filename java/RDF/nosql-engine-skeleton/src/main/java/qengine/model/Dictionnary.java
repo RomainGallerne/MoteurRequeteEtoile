@@ -11,30 +11,42 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class Dictionnary {
     private LinkedHashMap<Term, Integer> dictionary = new LinkedHashMap<>();
 
-    /// Ajoute une term au dictionnaire s'il nest pas présent
+    /// Ajoute une term au dictionnaire s'il n'est pas présent
     ///
     /// Incrémente sa fréquence sinon
     public void addTerm(Term term) {
         dictionary.put(term, dictionary.getOrDefault(term, 0) + 1);
     }
 
+    /// Permet d'ajouter plusieurs termes en un appel
+    public void addTerms(List<Term> terms) {
+        for (Term term : terms) {
+            addTerm(term);
+        }
+    }
+
     /// Organise les terms en fonction de leur fréquence par ordre décroissant.
     ///
     /// Créé l'ordre pour accéder plus rapidement à un élément selon sa récurrence
     public void createCodex() {
-        List<Map.Entry<Term, Integer>> entries = new ArrayList<>(dictionary.entrySet());
+        List<Map.Entry<Term, Integer>> entryList = new ArrayList<>(dictionary.entrySet());
 
-        entries.sort((entry1, entry2) -> Integer.compare(entry2.getValue(), entry1.getValue()));
+        // Trier la liste par ordre décroissant des valeurs
+        entryList.sort((entry1, entry2) -> entry2.getValue().compareTo(entry1.getValue()));
 
-        dictionary = new LinkedHashMap<>();
-        for (Map.Entry<Term, Integer> entry : entries) {
-            dictionary.put(entry.getKey(), entry.getValue());
+        // Reconstruire une LinkedHashMap triée
+        LinkedHashMap<Term, Integer> sortedDictionary = new LinkedHashMap<>();
+        for (Map.Entry<Term, Integer> entry : entryList) {
+            sortedDictionary.put(entry.getKey(), entry.getValue());
         }
+
+        this.dictionary = sortedDictionary;
     }
 
     /// Donne la clé dans le dictionnaire depuis un terme.
@@ -69,5 +81,13 @@ public class Dictionnary {
     /// Accès en 3*O(1) = O(1)
     public RDFAtom decodeTriplet(int[] triplet) {
         return new RDFAtom(getValue(triplet[0]), getValue(triplet[1]), getValue(triplet[2]));
+    }
+
+    public String toString(){
+        String string = "";
+        for (Term key : dictionary.keySet()) {
+            string = string.concat(key.toString() + " : " + dictionary.get(key).toString()+"\n");
+        }
+        return string;
     }
 }
