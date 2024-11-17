@@ -79,23 +79,29 @@ public class RDFHexaStoreTest {
     }
 
     @Test
-    public void testMatchAtomSPO() {
+    public void testMatchAtomWithSOrders() {
         RDFHexaStore store = new RDFHexaStore();
         RDFAtom rdfAtom1 = new RDFAtom(SUBJECT_1, PREDICATE_1, OBJECT_1);
         RDFAtom rdfAtom2 = new RDFAtom(SUBJECT_2, PREDICATE_1, OBJECT_2);
         RDFAtom rdfAtom3 = new RDFAtom(SUBJECT_1, PREDICATE_1, OBJECT_3);
+        RDFAtom rdfAtom4 = new RDFAtom(SUBJECT_2, OBJECT_2, PREDICATE_2);
+        RDFAtom rdfAtom5 = new RDFAtom(SUBJECT_1, OBJECT_1, PREDICATE_1);
 
-        store.add_to_dico(rdfAtom1.getTerms()); // RDFAtom(subject1, triple, object1)
-        store.add_to_dico(rdfAtom2.getTerms()); // RDFAtom(subject2, triple, object2)
-        store.add_to_dico(rdfAtom3.getTerms()); // RDFAtom(subject1, triple, object3)
+        store.add_to_dico(rdfAtom1.getTerms());
+        store.add_to_dico(rdfAtom2.getTerms());
+        store.add_to_dico(rdfAtom3.getTerms());
+        store.add_to_dico(rdfAtom4.getTerms());
+        store.add_to_dico(rdfAtom5.getTerms());
 
         store.dico_createCodex();
 
         store.add(rdfAtom1);
         store.add(rdfAtom2);
         store.add(rdfAtom3);
+        store.add(rdfAtom4);
+        store.add(rdfAtom5);
 
-        // Case 1
+        // Case 1 - SPO
         RDFAtom matchingAtom = new RDFAtom(SUBJECT_1, PREDICATE_1, VAR_X); // RDFAtom(subject1, predicate1, X)
         Iterator<Substitution> matchedAtoms = store.match(matchingAtom);
         List<Substitution> matchedList = new ArrayList<>();
@@ -109,32 +115,14 @@ public class RDFHexaStoreTest {
         assertEquals(2, matchedList.size(), "There should be two matched RDFAtoms");
         assertTrue(matchedList.contains(firstResult), "Missing substitution: " + firstResult);
         assertTrue(matchedList.contains(secondResult), "Missing substitution: " + secondResult);
-    }
 
-    @Test
-    public void testMatchAtomSOP() {
-        RDFHexaStore store = new RDFHexaStore();
-        RDFAtom rdfAtom1 = new RDFAtom(SUBJECT_1, OBJECT_1, PREDICATE_1);
-        RDFAtom rdfAtom2 = new RDFAtom(SUBJECT_2, PREDICATE_1, OBJECT_2);
-        RDFAtom rdfAtom3 = new RDFAtom(SUBJECT_1, PREDICATE_1, OBJECT_3);
-
-        store.add_to_dico(rdfAtom1.getTerms()); // RDFAtom(subject1, triple, object1)
-        store.add_to_dico(rdfAtom2.getTerms()); // RDFAtom(subject2, triple, object2)
-        store.add_to_dico(rdfAtom3.getTerms()); // RDFAtom(subject1, triple, object3)
-
-        store.dico_createCodex();
-
-        store.add(rdfAtom1);
-        store.add(rdfAtom2);
-        store.add(rdfAtom3);
-
-        // Case 1
-        RDFAtom matchingAtom = new RDFAtom(SUBJECT_1, OBJECT_1, VAR_X); // RDFAtom(subject1, predicate1, X)
-        Iterator<Substitution> matchedAtoms = store.match(matchingAtom);
-        List<Substitution> matchedList = new ArrayList<>();
+        // Case 2 - SOP
+        matchingAtom = new RDFAtom(SUBJECT_1, OBJECT_1, VAR_X);
+        matchedAtoms = store.match(matchingAtom);
+        matchedList = new ArrayList<>();
         matchedAtoms.forEachRemaining(matchedList::add);
 
-        Substitution firstResult = new SubstitutionImpl();
+        firstResult = new SubstitutionImpl();
         firstResult.add(VAR_X, PREDICATE_1);
 
         assertEquals(1, matchedList.size(), "There should be one matched RDFAtoms");
@@ -142,24 +130,29 @@ public class RDFHexaStoreTest {
     }
 
     @Test
-    public void testMatchAtomOPS() {
+    public void testMatchAtomWithOOrders() {
         RDFHexaStore store = new RDFHexaStore();
-
         RDFAtom rdfAtom1 = new RDFAtom(OBJECT_1, PREDICATE_1, SUBJECT_1);
-        RDFAtom rdfAtom2 = new RDFAtom(SUBJECT_2, PREDICATE_1, OBJECT_2);
-        RDFAtom rdfAtom3 = new RDFAtom(SUBJECT_1, PREDICATE_1, OBJECT_3);
+        RDFAtom rdfAtom2 = new RDFAtom(OBJECT_2, PREDICATE_1, SUBJECT_2);
+        RDFAtom rdfAtom3 = new RDFAtom(OBJECT_1, PREDICATE_1, SUBJECT_2);
+        RDFAtom rdfAtom4 = new RDFAtom(OBJECT_2, SUBJECT_2, PREDICATE_2);
+        RDFAtom rdfAtom5 = new RDFAtom(OBJECT_1, SUBJECT_1, PREDICATE_1);
 
-        store.add_to_dico(rdfAtom1.getTerms()); // RDFAtom(subject1, triple, object1)
-        store.add_to_dico(rdfAtom2.getTerms()); // RDFAtom(subject2, triple, object2)
-        store.add_to_dico(rdfAtom3.getTerms()); // RDFAtom(subject1, triple, object3)
+        store.add_to_dico(rdfAtom1.getTerms());
+        store.add_to_dico(rdfAtom2.getTerms());
+        store.add_to_dico(rdfAtom3.getTerms());
+        store.add_to_dico(rdfAtom4.getTerms());
+        store.add_to_dico(rdfAtom5.getTerms());
 
         store.dico_createCodex();
 
         store.add(rdfAtom1);
         store.add(rdfAtom2);
         store.add(rdfAtom3);
+        store.add(rdfAtom4);
+        store.add(rdfAtom5);
 
-        // Case 1
+        // Case 1 - OPS
         RDFAtom matchingAtom = new RDFAtom(OBJECT_1, PREDICATE_1, VAR_X); // RDFAtom(subject1, predicate1, X)
         Iterator<Substitution> matchedAtoms = store.match(matchingAtom);
         List<Substitution> matchedList = new ArrayList<>();
@@ -167,6 +160,72 @@ public class RDFHexaStoreTest {
 
         Substitution firstResult = new SubstitutionImpl();
         firstResult.add(VAR_X, SUBJECT_1);
+        Substitution secondResult = new SubstitutionImpl();
+        secondResult.add(VAR_X, SUBJECT_2);
+
+        assertEquals(2, matchedList.size(), "There should be two matched RDFAtoms");
+        assertTrue(matchedList.contains(firstResult), "Missing substitution: " + firstResult);
+        assertTrue(matchedList.contains(secondResult), "Missing substitution: " + secondResult);
+
+        // Case 2 - OSP
+        matchingAtom = new RDFAtom(OBJECT_1, SUBJECT_1, VAR_X);
+        matchedAtoms = store.match(matchingAtom);
+        matchedList = new ArrayList<>();
+        matchedAtoms.forEachRemaining(matchedList::add);
+
+        firstResult = new SubstitutionImpl();
+        firstResult.add(VAR_X, PREDICATE_1);
+
+        assertEquals(1, matchedList.size(), "There should be one matched RDFAtoms");
+        assertTrue(matchedList.contains(firstResult), "Missing substitution: " + firstResult);
+    }
+
+    @Test
+    public void testMatchAtomWithPOrders() {
+        RDFHexaStore store = new RDFHexaStore();
+        RDFAtom rdfAtom1 = new RDFAtom(PREDICATE_1, OBJECT_1, SUBJECT_1);
+        RDFAtom rdfAtom2 = new RDFAtom(PREDICATE_2, OBJECT_2, SUBJECT_2);
+        RDFAtom rdfAtom3 = new RDFAtom(PREDICATE_1, OBJECT_1, SUBJECT_2);
+        RDFAtom rdfAtom4 = new RDFAtom(PREDICATE_2, SUBJECT_2, OBJECT_2);
+        RDFAtom rdfAtom5 = new RDFAtom(PREDICATE_1, SUBJECT_1, OBJECT_1);
+
+        store.add_to_dico(rdfAtom1.getTerms());
+        store.add_to_dico(rdfAtom2.getTerms());
+        store.add_to_dico(rdfAtom3.getTerms());
+        store.add_to_dico(rdfAtom4.getTerms());
+        store.add_to_dico(rdfAtom5.getTerms());
+
+        store.dico_createCodex();
+
+        store.add(rdfAtom1);
+        store.add(rdfAtom2);
+        store.add(rdfAtom3);
+        store.add(rdfAtom4);
+        store.add(rdfAtom5);
+
+        // Case 1 - POS
+        RDFAtom matchingAtom = new RDFAtom(PREDICATE_1, OBJECT_1, VAR_X); // RDFAtom(subject1, predicate1, X)
+        Iterator<Substitution> matchedAtoms = store.match(matchingAtom);
+        List<Substitution> matchedList = new ArrayList<>();
+        matchedAtoms.forEachRemaining(matchedList::add);
+
+        Substitution firstResult = new SubstitutionImpl();
+        firstResult.add(VAR_X, SUBJECT_1);
+        Substitution secondResult = new SubstitutionImpl();
+        secondResult.add(VAR_X, SUBJECT_2);
+
+        assertEquals(2, matchedList.size(), "There should be two matched RDFAtoms");
+        assertTrue(matchedList.contains(firstResult), "Missing substitution: " + firstResult);
+        assertTrue(matchedList.contains(secondResult), "Missing substitution: " + secondResult);
+
+        // Case 2 - PSO
+        matchingAtom = new RDFAtom(PREDICATE_1, SUBJECT_1, VAR_X);
+        matchedAtoms = store.match(matchingAtom);
+        matchedList = new ArrayList<>();
+        matchedAtoms.forEachRemaining(matchedList::add);
+
+        firstResult = new SubstitutionImpl();
+        firstResult.add(VAR_X, OBJECT_1);
 
         assertEquals(1, matchedList.size(), "There should be one matched RDFAtoms");
         assertTrue(matchedList.contains(firstResult), "Missing substitution: " + firstResult);
