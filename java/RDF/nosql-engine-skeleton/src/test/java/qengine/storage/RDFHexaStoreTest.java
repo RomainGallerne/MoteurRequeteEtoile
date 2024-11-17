@@ -81,9 +81,19 @@ public class RDFHexaStoreTest {
     @Test
     public void testMatchAtomSPO() {
         RDFHexaStore store = new RDFHexaStore();
-        store.add(new RDFAtom(SUBJECT_1, PREDICATE_1, OBJECT_1)); // RDFAtom(subject1, triple, object1)
-        store.add(new RDFAtom(SUBJECT_2, PREDICATE_1, OBJECT_2)); // RDFAtom(subject2, triple, object2)
-        store.add(new RDFAtom(SUBJECT_1, PREDICATE_1, OBJECT_3)); // RDFAtom(subject1, triple, object3)
+        RDFAtom rdfAtom1 = new RDFAtom(SUBJECT_1, PREDICATE_1, OBJECT_1);
+        RDFAtom rdfAtom2 = new RDFAtom(SUBJECT_2, PREDICATE_1, OBJECT_2);
+        RDFAtom rdfAtom3 = new RDFAtom(SUBJECT_1, PREDICATE_1, OBJECT_3);
+
+        store.add_to_dico(rdfAtom1.getTerms()); // RDFAtom(subject1, triple, object1)
+        store.add_to_dico(rdfAtom2.getTerms()); // RDFAtom(subject2, triple, object2)
+        store.add_to_dico(rdfAtom3.getTerms()); // RDFAtom(subject1, triple, object3)
+
+        store.dico_createCodex();
+
+        store.add(rdfAtom1);
+        store.add(rdfAtom2);
+        store.add(rdfAtom3);
 
         // Case 1
         RDFAtom matchingAtom = new RDFAtom(SUBJECT_1, PREDICATE_1, VAR_X); // RDFAtom(subject1, predicate1, X)
@@ -104,9 +114,19 @@ public class RDFHexaStoreTest {
     @Test
     public void testMatchAtomSOP() {
         RDFHexaStore store = new RDFHexaStore();
-        store.add(new RDFAtom(SUBJECT_1, OBJECT_1, PREDICATE_1)); // RDFAtom(subject1, triple, object1)
-        store.add(new RDFAtom(SUBJECT_2, PREDICATE_1, OBJECT_2)); // RDFAtom(subject2, triple, object2)
-        store.add(new RDFAtom(SUBJECT_1, PREDICATE_1, OBJECT_3)); // RDFAtom(subject1, triple, object3)
+        RDFAtom rdfAtom1 = new RDFAtom(SUBJECT_1, OBJECT_1, PREDICATE_1);
+        RDFAtom rdfAtom2 = new RDFAtom(SUBJECT_2, PREDICATE_1, OBJECT_2);
+        RDFAtom rdfAtom3 = new RDFAtom(SUBJECT_1, PREDICATE_1, OBJECT_3);
+
+        store.add_to_dico(rdfAtom1.getTerms()); // RDFAtom(subject1, triple, object1)
+        store.add_to_dico(rdfAtom2.getTerms()); // RDFAtom(subject2, triple, object2)
+        store.add_to_dico(rdfAtom3.getTerms()); // RDFAtom(subject1, triple, object3)
+
+        store.dico_createCodex();
+
+        store.add(rdfAtom1);
+        store.add(rdfAtom2);
+        store.add(rdfAtom3);
 
         // Case 1
         RDFAtom matchingAtom = new RDFAtom(SUBJECT_1, OBJECT_1, VAR_X); // RDFAtom(subject1, predicate1, X)
@@ -124,9 +144,20 @@ public class RDFHexaStoreTest {
     @Test
     public void testMatchAtomOPS() {
         RDFHexaStore store = new RDFHexaStore();
-        store.add(new RDFAtom(OBJECT_1, PREDICATE_1, SUBJECT_1)); // RDFAtom(subject1, triple, object1)
-        store.add(new RDFAtom(SUBJECT_2, PREDICATE_1, OBJECT_2)); // RDFAtom(subject2, triple, object2)
-        store.add(new RDFAtom(SUBJECT_1, PREDICATE_1, OBJECT_3)); // RDFAtom(subject1, triple, object3)
+
+        RDFAtom rdfAtom1 = new RDFAtom(OBJECT_1, PREDICATE_1, SUBJECT_1);
+        RDFAtom rdfAtom2 = new RDFAtom(SUBJECT_2, PREDICATE_1, OBJECT_2);
+        RDFAtom rdfAtom3 = new RDFAtom(SUBJECT_1, PREDICATE_1, OBJECT_3);
+
+        store.add_to_dico(rdfAtom1.getTerms()); // RDFAtom(subject1, triple, object1)
+        store.add_to_dico(rdfAtom2.getTerms()); // RDFAtom(subject2, triple, object2)
+        store.add_to_dico(rdfAtom3.getTerms()); // RDFAtom(subject1, triple, object3)
+
+        store.dico_createCodex();
+
+        store.add(rdfAtom1);
+        store.add(rdfAtom2);
+        store.add(rdfAtom3);
 
         // Case 1
         RDFAtom matchingAtom = new RDFAtom(OBJECT_1, PREDICATE_1, VAR_X); // RDFAtom(subject1, predicate1, X)
@@ -144,10 +175,26 @@ public class RDFHexaStoreTest {
     @Test
     public void testMatchAtomWith2Vars() {
         RDFHexaStore store = new RDFHexaStore();
-        store.add(new RDFAtom(SUBJECT_1, PREDICATE_1, OBJECT_1));
-        store.add(new RDFAtom(SUBJECT_2, PREDICATE_1, OBJECT_2));
-        store.add(new RDFAtom(SUBJECT_1, PREDICATE_1, OBJECT_3));
-        store.add(new RDFAtom(SUBJECT_1, PREDICATE_2, OBJECT_3));
+        RDFAtom rdfAtom1 = new RDFAtom(SUBJECT_1, PREDICATE_1, OBJECT_1);
+        RDFAtom rdfAtom2 = new RDFAtom(PREDICATE_1, SUBJECT_2, OBJECT_2);
+        RDFAtom rdfAtom3 = new RDFAtom(SUBJECT_1, PREDICATE_1, OBJECT_3);
+        RDFAtom rdfAtom4 = new RDFAtom(SUBJECT_1, PREDICATE_2, OBJECT_3);
+        RDFAtom rdfAtom5 = new RDFAtom(OBJECT_3, PREDICATE_1, SUBJECT_1);
+
+
+        store.add_to_dico(rdfAtom1.getTerms()); // RDFAtom(subject1, triple, object1)
+        store.add_to_dico(rdfAtom2.getTerms()); // RDFAtom(subject2, triple, object2)
+        store.add_to_dico(rdfAtom3.getTerms()); // RDFAtom(subject1, triple, object3)
+        store.add_to_dico(rdfAtom4.getTerms()); // RDFAtom(subject1, triple, object3)
+        store.add_to_dico(rdfAtom5.getTerms()); // RDFAtom(subject1, triple, object3)
+
+        store.dico_createCodex();
+
+        store.add(rdfAtom1);
+        store.add(rdfAtom2);
+        store.add(rdfAtom3);
+        store.add(rdfAtom4);
+        store.add(rdfAtom5);
 
         // Case 1
         RDFAtom matchingAtom = new RDFAtom(SUBJECT_1, VAR_X, VAR_Y);
@@ -172,14 +219,46 @@ public class RDFHexaStoreTest {
         assertTrue(matchedList.contains(firstResult), "Missing substitution: " + firstResult);
         assertTrue(matchedList.contains(secondResult), "Missing substitution: " + secondResult);
         assertTrue(matchedList.contains(thirdResult), "Missing substitution: " + thirdResult);
+
+        // Case 2
+        matchingAtom = new RDFAtom(PREDICATE_1, VAR_X, VAR_Y);
+        matchedAtoms = store.match(matchingAtom);
+        matchedList = new ArrayList<>();
+        matchedAtoms.forEachRemaining(matchedList::add);
+
+        firstResult = new SubstitutionImpl();
+        firstResult.add(VAR_X, SUBJECT_2);
+        firstResult.add(VAR_Y, OBJECT_2);
+
+
+        assertEquals(1, matchedList.size(), "There should be three matched RDFAtoms");
+        assertTrue(matchedList.contains(firstResult), "Missing substitution: " + firstResult);
+
+
+        // Case 3
+        matchingAtom = new RDFAtom(OBJECT_3, VAR_X, VAR_Y);
+        matchedAtoms = store.match(matchingAtom);
+        matchedList = new ArrayList<>();
+        matchedAtoms.forEachRemaining(matchedList::add);
+
+        firstResult = new SubstitutionImpl();
+        firstResult.add(VAR_X, PREDICATE_1);
+        firstResult.add(VAR_Y, SUBJECT_1);
+
+
+        assertEquals(1, matchedList.size(), "There should be three matched RDFAtoms");
+        assertTrue(matchedList.contains(firstResult), "Missing substitution: " + firstResult);
+
     }
 
 
-
+/*
     @Test
     public void testMatchStarQuery() {
         throw new NotImplementedException();
     }
+
+ */
 
     // Vos autres tests d'HexaStore ici
 }

@@ -19,24 +19,8 @@ public class Index {
                 .add(triplet[2]); // On ajoute l'objet (triplet[2])
     }
 
-//    // Méthode pour indexer les triplets
-//    public Index(List<int[]> triplets) {
-//        Map<Integer, Map<Integer, List<Integer>>> index = new HashMap<>();
-//
-//        for (int[] triplet : triplets) {
-//            index
-//                    .computeIfAbsent(triplet[0], k -> new HashMap<>())
-//                    .computeIfAbsent(triplet[1], k -> new ArrayList<>())
-//                    .add(triplet[2]);
-//        }
-//
-//        this.index = index;
-//    }
-
     // Méthode pour rechercher des triplets pour les trois éléments données
     public List<int[]> searchByThree(Integer first_element, Integer second_element, Integer third_element) {
-//        List<Integer> third_elem_match =  this.index.getOrDefault(first_element, Collections.emptyMap())
-//                .getOrDefault(second_element, Collections.emptyList());
         Map<Integer, List<Integer>> first_elem_match =  this.index.getOrDefault(first_element, Collections.emptyMap());
         List<Integer> second_elem_match =  first_elem_match.getOrDefault(second_element, Collections.emptyList());
 

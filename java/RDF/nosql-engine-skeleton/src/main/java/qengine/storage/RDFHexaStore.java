@@ -141,7 +141,6 @@ public class RDFHexaStore implements RDFStorage {
             //result = OPS.searchByTwo(o_code, p_code);
 
         } else if (s_var) {
-            System.out.println("3");
             //S??
             results = SPO.searchByOne(s_code);
             //result = SOP.searchByOne(s_code);
@@ -192,9 +191,5 @@ public class RDFHexaStore implements RDFStorage {
     @Override
     public Collection<Atom> getAtoms() {
         return rdfAtoms.stream().collect(Collectors.toSet());
-    }
-
-    private void setup() {
-        dictionnary.createCodex();
     }
 }

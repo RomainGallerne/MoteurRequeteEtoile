@@ -83,11 +83,6 @@ public final class Main {
 		System.out.print("------------");
 
 
-
-
-
-
-
 //		System.out.println("\n=== Parsing Sample Queries ===");
 //		List<StarQuery> starQueries = parseSparQLQueries(SAMPLE_QUERY_FILE);
 

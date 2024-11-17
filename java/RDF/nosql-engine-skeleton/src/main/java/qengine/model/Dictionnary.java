@@ -26,9 +26,7 @@ public class Dictionnary {
 
     /// Permet d'ajouter plusieurs termes en un appel
     public void addTerms(List<Term> terms) {
-        for (Term term : terms) {
-            addTerm(term);
-        }
+        terms.forEach(this::addTerm);
     }
 
     /// Organise les terms en fonction de leur fréquence par ordre décroissant.

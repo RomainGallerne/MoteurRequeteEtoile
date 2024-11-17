@@ -18,7 +18,8 @@ import static org.junit.jupiter.api.Assertions.*;
  * Tests unitaires pour la classe StarQuerySparQLParser.
  */
 class StarQuerySparQLParserTest {
-    private final String sampleQueryFile = "src/test/resources/sample_query.queryset";
+    private static String SRC_DIR = "java/RDF/nosql-engine-skeleton/src/";
+    private final String sampleQueryFile = SRC_DIR+"test/resources/sample_query.queryset";
 
     @Test
     void testParseSingleQuery() throws IOException {
@@ -77,7 +78,7 @@ class StarQuerySparQLParserTest {
 
     @Test
     void testParseInvalidQuery() throws IOException {
-        String invalidQueryFile = "src/test/resources/invalid_query.queryset";
+        String invalidQueryFile = SRC_DIR+"test/resources/invalid_query.queryset";
 
         try (StarQuerySparQLParser parser = new StarQuerySparQLParser(invalidQueryFile)) {
             // Tester chaque requête invalide
@@ -87,7 +88,7 @@ class StarQuerySparQLParserTest {
 
     @Test
     void testParseInvalidQuerySyntax() throws IOException {
-        String invalidQueryFile = "src/test/resources/invalid_syntax.queryset";
+        String invalidQueryFile = SRC_DIR+"test/resources/invalid_syntax.queryset";
 
         try (StarQuerySparQLParser parser = new StarQuerySparQLParser(invalidQueryFile)) {
             // Vérifie que l'exception est levée pour la première requête invalide
@@ -100,7 +101,7 @@ class StarQuerySparQLParserTest {
 
     @Test
     void testHasNextWhenNextQueryIsNull() throws IOException {
-        String emptyQueryFile = "src/test/resources/empty_query.queryset";
+        String emptyQueryFile = SRC_DIR+"test/resources/empty_query.queryset";
 
         try (StarQuerySparQLParser parser = new StarQuerySparQLParser(emptyQueryFile)) {
             assertFalse(parser.hasNext(), "Le parser ne devrait pas avoir de requêtes à traiter.");
@@ -109,7 +110,7 @@ class StarQuerySparQLParserTest {
 
     @Test
     void testNextWhenNoQueries() throws IOException {
-        String emptyQueryFile = "src/test/resources/empty_query.queryset";
+        String emptyQueryFile = SRC_DIR+"test/resources/empty_query.queryset";
 
         try (StarQuerySparQLParser parser = new StarQuerySparQLParser(emptyQueryFile)) {
             assertThrows(NoSuchElementException.class, parser::next,
@@ -119,7 +120,7 @@ class StarQuerySparQLParserTest {
 
     @Test
     void testParseStarQueryWithNoSharedVariable() throws IOException {
-        String noSharedVariableFile = "src/test/resources/no_shared_variable.queryset";
+        String noSharedVariableFile = SRC_DIR+"test/resources/no_shared_variable.queryset";
 
         try (StarQuerySparQLParser parser = new StarQuerySparQLParser(noSharedVariableFile)) {
             assertThrows(RuntimeException.class, parser::next,
