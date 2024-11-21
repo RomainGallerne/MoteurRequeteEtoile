@@ -84,7 +84,7 @@ public class RDFHexaStore implements RDFStorage {
             this.POS.ajoutTriplet(permuteTriplet(atomEncoder, "POS"));
             this.PSO.ajoutTriplet(permuteTriplet(atomEncoder, "PSO"));
             this.SOP.ajoutTriplet(permuteTriplet(atomEncoder, "SOP"));
-            this.SPO.ajoutTriplet(permuteTriplet(atomEncoder, "SPO"));
+            this.SPO.ajoutTriplet(atomEncoder);
         }
 
         return res;
@@ -119,43 +119,36 @@ public class RDFHexaStore implements RDFStorage {
         boolean p_var = p.isLiteral();
         boolean o_var = o.isLiteral();
 
-        List<int[]> results;
+        List<int[]> results = new ArrayList<>();
+        List<int[]> ordered_results = new ArrayList<>();
 
         if (s_var && p_var && o_var) {
-            //Vérifier si tuple est présent et le retourner sinon rien
-            results = SPO.searchByThree(s_code, p_code, o_code);
-
+            //SPO
+            for (int [] result : SPO.searchByThree(s_code, p_code, o_code)) {results.add(permuteTriplet(result, "SPO"));}
         } else if (s_var && p_var) {
             //SP? ou PS?
-            results = SPO.searchByTwo(s_code, p_code);
-            //result = PSO.searchByTwo(p_code, s_code);
-
+            for (int [] result : SPO.searchByTwo(s_code, p_code)) {results.add(permuteTriplet(result, "SPO"));}
+            //for (int [] result : PSO.searchByTwo(p_code, s_code)) {results.add(permuteTriplet(result, "PSO"));}
         } else if (s_var && o_var) {
             //SO? ou OS?
-            results = SOP.searchByTwo(s_code, o_code);
-            //result = OSP.searchByTwo(o_code, s_code);
-
+            for (int [] result : SOP.searchByTwo(s_code, o_code)) {results.add(permuteTriplet(result, "SOP"));}
+            //for (int [] result : OSP.searchByTwo(o_code, s_code)) {results.add(permuteTriplet(result, "POS"));}
         } else if (p_var && o_var) {
             //PO? ou OP?
-            results = POS.searchByTwo(p_code, o_code);
-            //result = OPS.searchByTwo(o_code, p_code);
-
+            for (int [] result : POS.searchByTwo(p_code, o_code)) {results.add(permuteTriplet(result, "OSP"));}
+            //for (int [] result : OPS.searchByTwo(o_code, p_code)) {results.add(permuteTriplet(result, "OPS"));}
         } else if (s_var) {
             //S??
-            results = SPO.searchByOne(s_code);
-            //result = SOP.searchByOne(s_code);
-
+            for (int [] result : SPO.searchByOne(s_code)){results.add(permuteTriplet(result, "SPO"));}
+            //for (int [] result : SOP.searchByOne(s_code)) {results.add(permuteTriplet(result, "SOP"));}
         } else if (p_var) {
             //P??
-            results = PSO.searchByOne(p_code);
-            //result = POS.searchByOne(p_code);
-
+            for (int [] result : PSO.searchByOne(p_code)) {results.add(permuteTriplet(result, "PSO"));}
+            //for (int [] result : POS.searchByOne(p_code)) {results.add(permuteTriplet(result, "OSP"));}
         } else if (o_var) {
             //O??
-            results = OPS.searchByOne(o_code);
-            //result = OSP.searchByOne(o_code);
-
-
+            for (int [] result : OPS.searchByOne(o_code)) {results.add(permuteTriplet(result, "OPS"));}
+            //for (int [] result : OSP.searchByOne(o_code)) {results.add(permuteTriplet(result, "POS"));}
         } else {
             //Retourner tous les tuples
             int[] array = {s_code, p_code, o_code};
@@ -185,7 +178,35 @@ public class RDFHexaStore implements RDFStorage {
      */
     @Override
     public Iterator<Substitution> match(StarQuery q) {
-        throw new NotImplementedException();
+        List<RDFAtom> rdfAtoms = q.getRdfAtoms();
+
+        // Initialisation avec les correspondances du premier RDFAtom
+        Iterator<Substitution> matchingAtoms = match(rdfAtoms.getFirst());
+        while(matchingAtoms.hasNext()){System.out.println("matchingAtoms : "+matchingAtoms.next());}
+        Set<Substitution> currentMatches = new HashSet<>();
+        matchingAtoms.forEachRemaining(currentMatches::add);
+
+        // Parcourir les autres RDFAtom
+        for (int i = 1; i < rdfAtoms.size(); i++) {
+            RDFAtom rdfAtom = rdfAtoms.get(i);
+            Iterator<Substitution> matchResult = match(rdfAtom);
+            while(matchingAtoms.hasNext()){System.out.println("matchResult : "+matchResult.next());}
+
+            // Convertir matchResult en un ensemble pour une intersection rapide
+            Set<Substitution> nextMatches = new HashSet<>();
+            matchResult.forEachRemaining(nextMatches::add);
+
+            // Réaliser l'intersection directement
+            currentMatches.retainAll(nextMatches);
+
+            // Si aucune correspondance, sortir rapidement
+            if (currentMatches.isEmpty()) {
+                return Collections.emptyIterator();
+            }
+        }
+
+        // Retourner l'itérateur des résultats finaux
+        return currentMatches.iterator();
     }
 
     @Override

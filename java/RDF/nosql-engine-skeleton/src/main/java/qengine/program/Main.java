@@ -37,18 +37,20 @@ public final class Main {
 		System.out.println("\n=== Parsing RDF Data ===\n");
 		List<RDFAtom> rdfAtoms = parseRDFData(SAMPLE_DATA_FILE);
 
-		System.out.println("\n=== Building Dictionary ===\n");
+		System.out.println("\n=== Building Dictionary ===");
 		for (RDFAtom rdfAtom : rdfAtoms){
 			hexastore.add_to_dico(rdfAtom.getTerms());
 		}
 		hexastore.dico_createCodex();
+		System.out.println("Done.");
 
-		System.out.println("\n=== Building Indexes ===\n");
+		System.out.println("\n=== Building Indexes ===");
 		for (RDFAtom rdfAtom : rdfAtoms){
 			hexastore.add(rdfAtom);
 		}
+		System.out.println("Done.");
 
-		System.out.println("\n=== Match Atom ===\n");
+		System.out.println("\n=== Match Atom ===");
 		TermFactory termFactory = SameObjectTermFactory.instance();
 		Variable var1 = termFactory.createOrGetVariable("?x0");
 		Variable var2 = termFactory.createOrGetVariable("?x1");
@@ -58,7 +60,7 @@ public final class Main {
 
 		RDFAtom match_object = new RDFAtom(first_atom.getTripleSubject(), first_atom.getTriplePredicate(), var1);
 		//RDFAtom match_predicate = new RDFAtom(first_atom.getTripleSubject(), var1, first_atom.getTripleObject());
-		//RDFAtom match_subject = new RDFAtom(var1, first_atom.getTriplePredicate(), first_atom.getTripleObject());
+		RDFAtom match_subject = new RDFAtom(var1, first_atom.getTriplePredicate(), first_atom.getTripleObject());
 
 		RDFAtom match_predicate_object = new RDFAtom(first_atom.getTripleSubject(), var1, var2);
 		//RDFAtom match_subject_predicate = new RDFAtom(var1, var2, first_atom.getTripleObject());
@@ -77,25 +79,37 @@ public final class Main {
 		while(match_result.hasNext()){System.out.println(match_result.next());}
 		System.out.print("------------\n");
 
+		System.out.println("Match object : " + match_subject.toString());
+		match_result = hexastore.match(match_subject);
+		while(match_result.hasNext()){System.out.println(match_result.next());}
+		System.out.print("------------\n");
+
 		System.out.println("Match object : " + match_predicate_object.toString());
 		match_result = hexastore.match(match_predicate_object);
 		while(match_result.hasNext()){System.out.println(match_result.next());}
-		System.out.print("------------");
+		System.out.println("------------");
 
 
-//		System.out.println("\n=== Parsing Sample Queries ===");
-//		List<StarQuery> starQueries = parseSparQLQueries(SAMPLE_QUERY_FILE);
+		System.out.println("\n=== Parsing Sample Queries ===\n");
+		List<StarQuery> starQueries = parseSparQLQueries(SAMPLE_QUERY_FILE);
 
-//		System.out.println("\n=== Executing the queries with Integraal ===");
-//		FactBase factBase = new SimpleInMemoryGraphStore();
-//		for (RDFAtom atom : rdfAtoms) {
-//			factBase.add(atom);  // Stocker chaque RDFAtom dans le store
-//		}
+		System.out.println("\n=== Queries with Integraal ===\n");
+		FactBase factBase = new SimpleInMemoryGraphStore();
+		for (RDFAtom atom : rdfAtoms) {
+			factBase.add(atom);  // Stocker chaque RDFAtom dans le store
+		}
+		for (StarQuery starQuery : starQueries) {
+			executeStarQuery(starQuery, factBase);
+		}
 
-//		// Exécuter les requêtes sur le store
-//		for (StarQuery starQuery : starQueries) {
-//			executeStarQuery(starQuery, factBase);
-//		}
+		System.out.println("\n=== Queries with Hexastore ===\n");
+		for (StarQuery starQuery : starQueries) {
+			System.out.println("Star Query : " + starQuery.toString()+"\n");
+			match_result = hexastore.match(starQuery);
+			while(match_result.hasNext()){System.out.println(match_result.next());}
+			System.out.print("------------\n");
+		}
+
 	}
 
 	/**
