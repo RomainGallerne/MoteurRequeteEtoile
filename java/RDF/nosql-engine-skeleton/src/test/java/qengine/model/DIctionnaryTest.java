@@ -2,14 +2,12 @@ package test.java.qengine.model;
 
 import fr.boreal.model.logicalElements.api.*;
 import fr.boreal.model.logicalElements.factory.impl.SameObjectTermFactory;
-import fr.boreal.model.logicalElements.impl.SubstitutionImpl;
+import main.java.qengine.exceptions.KeyNotFoundException;
+import main.java.qengine.exceptions.ValueNotFoundException;
 import main.java.qengine.model.Dictionnary;
 import main.java.qengine.model.RDFAtom;
 import main.java.qengine.storage.RDFHexaStore;
-import org.apache.commons.lang3.NotImplementedException;
 import org.junit.jupiter.api.Test;
-
-import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -33,7 +31,11 @@ public class DIctionnaryTest {
 
         dictionnary.createCodex();
 
-        assertEquals(0, dictionnary.getKey(SUBJECT_1), "SUBJECT_1 is supposed to be on first index");
+        try {
+            assertEquals(0, dictionnary.getKey(SUBJECT_1), "SUBJECT_1 is supposed to be on first index");
+        } catch (KeyNotFoundException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Test
@@ -46,7 +48,11 @@ public class DIctionnaryTest {
 
         dictionnary.createCodex();
 
-        assertEquals(SUBJECT_1, dictionnary.getValue(0), "first value is supposed to be on SUBJECT_1");
+        try {
+            assertEquals(SUBJECT_1, dictionnary.getValue(0), "first value is supposed to be on SUBJECT_1");
+        } catch (ValueNotFoundException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Test
@@ -92,7 +98,12 @@ public class DIctionnaryTest {
 
         dictionnary.createCodex();
 
-        RDFAtom decodedRDFAtom = dictionnary.decodeTriplet(new int[]{1,0,2});
+        RDFAtom decodedRDFAtom = null;
+        try {
+            decodedRDFAtom = dictionnary.decodeTriplet(new int[]{1,0,2});
+        } catch (ValueNotFoundException e) {
+            throw new RuntimeException(e);
+        }
 
         assertEquals(decodedRDFAtom, rdfAtom1, "The RDFAtom is supposed to be rdfAtom1");
     }

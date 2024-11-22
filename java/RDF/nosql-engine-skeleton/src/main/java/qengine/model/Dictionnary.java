@@ -1,18 +1,10 @@
 package main.java.qengine.model;
 
 import fr.boreal.model.logicalElements.api.Term;
-import fr.boreal.model.logicalElements.api.Variable;
-import fr.boreal.model.logicalElements.impl.ConstantImpl;
-import fr.boreal.model.logicalElements.impl.identityObjects.IdentityLiteralImpl;
-import main.java.qengine.parser.RDFAtomParser;
-import org.eclipse.rdf4j.rio.RDFFormat;
+import main.java.qengine.exceptions.KeyNotFoundException;
+import main.java.qengine.exceptions.ValueNotFoundException;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 public class Dictionnary {
     private LinkedHashMap<Term, Integer> dictionary = new LinkedHashMap<>();
@@ -22,11 +14,6 @@ public class Dictionnary {
     /// Incrémente sa fréquence sinon
     public void addTerm(Term term) {
         dictionary.put(term, dictionary.getOrDefault(term, 0) + 1);
-    }
-
-    /// Permet d'ajouter plusieurs termes en un appel
-    public void addTerms(List<Term> terms) {
-        terms.forEach(this::addTerm);
     }
 
     /// Organise les terms en fonction de leur fréquence par ordre décroissant.
@@ -50,34 +37,65 @@ public class Dictionnary {
     /// Donne la clé dans le dictionnaire depuis un terme.
     ///
     /// Accès max en O(n) mais à calculer précisément
-    public int getKey(Term term) {
-        return IntStream.range(0, new ArrayList<>(dictionary.keySet()).size())
-                .filter(i -> new ArrayList<>(dictionary.keySet()).get(i).equals(term))
-                .findFirst()
-                .orElse(-1);
+    public int getKey(Term term) throws KeyNotFoundException {
+        if(term.isLiteral()) {
+            List<Term> keys = new ArrayList<>(dictionary.keySet());
+
+            for (int i = 0; i < keys.size(); i++) {
+                if (keys.get(i).equals(term)) {
+                    return i;
+                }
+            }
+
+            throw new KeyNotFoundException(term); // Le Term n'est pas présent dans le dictionnary
+        }
+        return -1; // On essaye d'avoir la value d'une variable
     }
 
     /// Donne la valeur depuis une clé.
     ///
     /// Accès instantanée -> O(1)
-    public Term getValue(int index) {
-        return (Term) dictionary.keySet().toArray()[index];
+    public Term getValue(int index) throws ValueNotFoundException {
+        List<Term> keys = new ArrayList<>(dictionary.keySet());
+
+        if (index < 0 || index >= keys.size()) {
+            throw new ValueNotFoundException(index);
+        }
+
+        return keys.get(index);
     }
+
 
     /// Encode un triplet RDF par ses clés
     ///
     /// Accès max en O(n) mais à calculer précisément
     public int[] encodeTriplet(RDFAtom triplet) {
-        return Arrays.stream(triplet.getTerms())
-                .filter(term -> !(term instanceof Variable && term.label().startsWith("?")))
-                .mapToInt(this::getKey)
-                .toArray();
+        Term[] terms = triplet.getTerms();
+        List<Integer> encodedTerms = new ArrayList<>();
+
+        for (Term term : terms) {
+            if (term.isLiteral()) {
+                try {
+                    encodedTerms.add(getKey(term));
+                } catch (KeyNotFoundException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+
+        int[] result = new int[encodedTerms.size()];
+        for (int i = 0; i < encodedTerms.size(); i++) {
+            result[i] = encodedTerms.get(i);
+        }
+
+        return result;
     }
+
 
     /// Décode un triplet de clé et renvoie un triplet RDF
     ///
     /// Accès en 3*O(1) = O(1)
-    public RDFAtom decodeTriplet(int[] triplet) {
+    public RDFAtom decodeTriplet(int[] triplet) throws ValueNotFoundException {
         return new RDFAtom(getValue(triplet[0]), getValue(triplet[1]), getValue(triplet[2]));
     }
 
