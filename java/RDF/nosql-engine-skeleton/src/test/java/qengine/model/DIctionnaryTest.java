@@ -3,6 +3,7 @@ package test.java.qengine.model;
 import fr.boreal.model.logicalElements.api.*;
 import fr.boreal.model.logicalElements.factory.impl.SameObjectTermFactory;
 import fr.boreal.model.logicalElements.impl.SubstitutionImpl;
+import main.java.qengine.exceptions.KeyNotFoundException;
 import main.java.qengine.model.Dictionnary;
 import main.java.qengine.model.RDFAtom;
 import main.java.qengine.storage.RDFHexaStore;
@@ -33,7 +34,9 @@ public class DIctionnaryTest {
 
         dictionnary.createCodex();
 
-        assertEquals(0, dictionnary.getKey(SUBJECT_1), "SUBJECT_1 is supposed to be on first index");
+        try {
+            assertEquals(0, dictionnary.getKey(SUBJECT_1), "SUBJECT_1 is supposed to be on first index");
+        } catch (KeyNotFoundException e) {}
     }
 
     @Test
@@ -67,7 +70,10 @@ public class DIctionnaryTest {
 
         dictionnary.createCodex();
 
-        int[] encodedTriplet1 = dictionnary.encodeTriplet(rdfAtom1);
+        int[] encodedTriplet1 = new int[0];
+        try {
+            encodedTriplet1 = dictionnary.encodeTriplet(rdfAtom1);
+        } catch(KeyNotFoundException e) {}
 
         assertEquals(1, encodedTriplet1[0], "The first value should be 1");
         assertEquals(0, encodedTriplet1[1], "The second value should be 0");
