@@ -2,6 +2,7 @@ package main.java.qengine.storage;
 
 import fr.boreal.model.logicalElements.api.*;
 import fr.boreal.model.logicalElements.impl.SubstitutionImpl;
+import main.java.qengine.exceptions.KeyNotFoundException;
 import main.java.qengine.exceptions.ValueNotFoundException;
 import main.java.qengine.model.*;
 import org.apache.commons.lang3.NotImplementedException;
@@ -205,6 +206,7 @@ public class RDFHexaStore implements RDFStorage {
         for (int i = 1; i < rdfAtoms.size(); i++) {
             RDFAtom rdfAtom = rdfAtoms.get(i);
             Iterator<Substitution> matchResult = match(rdfAtom);
+
 
             Set<Substitution> nextMatches = new HashSet<>();
             matchResult.forEachRemaining(nextMatches::add);

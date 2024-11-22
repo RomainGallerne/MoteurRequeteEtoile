@@ -46,10 +46,9 @@ public final class Main {
 		int rdfAtoms_size = rdfAtoms.size();
 		for (int i=0; i < rdfAtoms_size; i++){
 			hexastore.add(rdfAtoms.get(i));
-			System.out.println(i);
-//			if(i%1000==0){
-//				System.out.println(i/rdfAtoms_size * 100);
-//			}
+			if(i%1000==0){
+				System.out.println((float)i/(float)rdfAtoms_size * 100.0);
+			}
 
 		}
 		System.out.println("Done.");
@@ -98,10 +97,12 @@ public final class Main {
 		List<StarQuery> starQueries = parseSparQLQueries(SAMPLE_QUERY_FILE);
 
 		System.out.println("\n=== Queries with Integraal ===\n");
-		Set<Set<Substitution>> integraalResults = executeWithIntegraal(rdfAtoms, starQueries);
+		Set<Set<Substitution>> integraalResults = executeWithIntegraal(rdfAtoms, starQueries, false);
+		System.out.println("Done.");
 
 		System.out.println("\n=== Queries with Hexastore ===\n");
-		Set<Set<Substitution>> hexastoreResults = executeWithHexastore(starQueries);
+		Set<Set<Substitution>> hexastoreResults = executeWithHexastore(starQueries, false);
+		System.out.println("Done.");
 
 		System.out.println("\n=== Correction et complétude ===\n");
 		//Test de correction
@@ -121,7 +122,7 @@ public final class Main {
 		}
 	}
 
-	private static Set<Set<Substitution>> executeWithIntegraal(List<RDFAtom> rdfAtoms, List<StarQuery> starQueries) {
+	private static Set<Set<Substitution>> executeWithIntegraal(List<RDFAtom> rdfAtoms, List<StarQuery> starQueries, boolean verbose) {
 		// Préparer la fact base
 		FactBase factBase = new SimpleInMemoryGraphStore();
 		rdfAtoms.forEach(factBase::add);
@@ -130,7 +131,7 @@ public final class Main {
 		Set<Set<Substitution>> results = new HashSet<>();
 
 		for (StarQuery starQuery : starQueries) {
-			System.out.println("Star Query: " + starQuery + "\n");
+			//System.out.println("Star Query: " + starQuery + "\n");
 
 			// Trouver les correspondances
 			Set<Substitution> matches = new HashSet<>();
@@ -138,18 +139,18 @@ public final class Main {
 			results.add(matches);
 
 			// Afficher les résultats
-			matches.forEach(System.out::println);
-			System.out.println("------------\n");
+			if(verbose){matches.forEach(System.out::println);}
+			if(verbose){System.out.println("------------\n");}
 		}
 
 		return results;
 	}
 
-	private static Set<Set<Substitution>> executeWithHexastore(List<StarQuery> starQueries) {
+	private static Set<Set<Substitution>> executeWithHexastore(List<StarQuery> starQueries, boolean verbose) {
 		Set<Set<Substitution>> results = new HashSet<>();
 
 		for (StarQuery starQuery : starQueries) {
-			System.out.println("Star Query: " + starQuery + "\n");
+			if(verbose){System.out.println("Star Query: " + starQuery + "\n");}
 
 			// Trouver les correspondances
 			Set<Substitution> matches = new HashSet<>();
@@ -157,8 +158,8 @@ public final class Main {
 			results.add(matches);
 
 			// Afficher les résultats
-			matches.forEach(System.out::println);
-			System.out.println("------------\n");
+			if(verbose){matches.forEach(System.out::println);}
+			if(verbose){System.out.println("------------\n");}
 		}
 
 		return results;
