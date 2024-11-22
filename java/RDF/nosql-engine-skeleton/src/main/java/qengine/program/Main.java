@@ -2,8 +2,6 @@ package main.java.qengine.program;
 
 import fr.boreal.model.formula.api.FOFormula;
 import fr.boreal.model.formula.api.FOFormulaConjunction;
-import fr.boreal.model.logicalElements.api.Atom;
-import fr.boreal.model.logicalElements.api.Term;
 import fr.boreal.model.logicalElements.api.Variable;
 import fr.boreal.model.logicalElements.factory.api.TermFactory;
 import fr.boreal.model.logicalElements.factory.impl.SameObjectTermFactory;
@@ -14,7 +12,6 @@ import fr.boreal.model.logicalElements.api.Substitution;
 import fr.boreal.model.queryEvaluation.api.FOQueryEvaluator;
 import fr.boreal.query_evaluation.generic.GenericFOQueryEvaluator;
 import fr.boreal.storage.natives.SimpleInMemoryGraphStore;
-import fr.lirmm.graphik.graal.api.core.VariableGenerator;
 import main.java.qengine.model.*;
 import main.java.qengine.storage.RDFHexaStore;
 import org.eclipse.rdf4j.rio.RDFFormat;
@@ -24,12 +21,13 @@ import main.java.qengine.parser.StarQuerySparQLParser;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public final class Main {
 
 	private static final String WORKING_DIR = "java/RDF/nosql-engine-skeleton/data/";
-	private static final String SAMPLE_DATA_FILE = WORKING_DIR + "sample_data.nt";
-	private static final String SAMPLE_QUERY_FILE = WORKING_DIR + "sample_query.queryset";
+	private static final String SAMPLE_DATA_FILE = WORKING_DIR + "100K.nt";
+	private static final String SAMPLE_QUERY_FILE = WORKING_DIR + "STAR_ALL_workload.queryset";
 	private static final RDFHexaStore hexastore = new RDFHexaStore();
 
 
@@ -45,8 +43,14 @@ public final class Main {
 		System.out.println("Done.");
 
 		System.out.println("\n=== Building Indexes ===");
-		for (RDFAtom rdfAtom : rdfAtoms){
-			hexastore.add(rdfAtom);
+		int rdfAtoms_size = rdfAtoms.size();
+		for (int i=0; i < rdfAtoms_size; i++){
+			hexastore.add(rdfAtoms.get(i));
+			System.out.println(i);
+//			if(i%1000==0){
+//				System.out.println(i/rdfAtoms_size * 100);
+//			}
+
 		}
 		System.out.println("Done.");
 
@@ -94,22 +98,70 @@ public final class Main {
 		List<StarQuery> starQueries = parseSparQLQueries(SAMPLE_QUERY_FILE);
 
 		System.out.println("\n=== Queries with Integraal ===\n");
-		FactBase factBase = new SimpleInMemoryGraphStore();
-		for (RDFAtom atom : rdfAtoms) {
-			factBase.add(atom);  // Stocker chaque RDFAtom dans le store
-		}
-		for (StarQuery starQuery : starQueries) {
-			executeStarQuery(starQuery, factBase);
-		}
+		Set<Set<Substitution>> integraalResults = executeWithIntegraal(rdfAtoms, starQueries);
 
 		System.out.println("\n=== Queries with Hexastore ===\n");
-		for (StarQuery starQuery : starQueries) {
-			System.out.println("Star Query : " + starQuery.toString()+"\n");
-			match_result = hexastore.match(starQuery);
-			while(match_result.hasNext()){System.out.println(match_result.next());}
-			System.out.print("------------\n");
+		Set<Set<Substitution>> hexastoreResults = executeWithHexastore(starQueries);
+
+		System.out.println("\n=== Correction et complétude ===\n");
+		//Test de correction
+		//Tous les éléments de la starQuery sont dans integraal
+		if (hexastoreResults.containsAll(integraalResults)) {
+			System.out.println("Matching Correct ✔");
+		} else {
+			System.out.println("Matching Incorrect");
 		}
 
+		//Test de complétude
+		//Tous les éléments de integraal sont dans la starquerry
+		if (integraalResults.containsAll(hexastoreResults)) {
+			System.out.println("Matching Complet ✔");
+		} else {
+			System.out.println("Matching Incomplet");
+		}
+	}
+
+	private static Set<Set<Substitution>> executeWithIntegraal(List<RDFAtom> rdfAtoms, List<StarQuery> starQueries) {
+		// Préparer la fact base
+		FactBase factBase = new SimpleInMemoryGraphStore();
+		rdfAtoms.forEach(factBase::add);
+
+		// Exécuter les requêtes
+		Set<Set<Substitution>> results = new HashSet<>();
+
+		for (StarQuery starQuery : starQueries) {
+			System.out.println("Star Query: " + starQuery + "\n");
+
+			// Trouver les correspondances
+			Set<Substitution> matches = new HashSet<>();
+			executeStarQuery(starQuery, factBase).forEachRemaining(matches::add);
+			results.add(matches);
+
+			// Afficher les résultats
+			matches.forEach(System.out::println);
+			System.out.println("------------\n");
+		}
+
+		return results;
+	}
+
+	private static Set<Set<Substitution>> executeWithHexastore(List<StarQuery> starQueries) {
+		Set<Set<Substitution>> results = new HashSet<>();
+
+		for (StarQuery starQuery : starQueries) {
+			System.out.println("Star Query: " + starQuery + "\n");
+
+			// Trouver les correspondances
+			Set<Substitution> matches = new HashSet<>();
+			hexastore.match(starQuery).forEachRemaining(matches::add);
+			results.add(matches);
+
+			// Afficher les résultats
+			matches.forEach(System.out::println);
+			System.out.println("------------\n");
+		}
+
+		return results;
 	}
 
 	/**
@@ -168,21 +220,12 @@ public final class Main {
 	 *
 	 * @param starQuery La requête à exécuter
 	 * @param factBase  Le store contenant les atomes
+	 * @return
 	 */
-	private static void executeStarQuery(StarQuery starQuery, FactBase factBase) {
+	private static Iterator<Substitution> executeStarQuery(StarQuery starQuery, FactBase factBase) {
 		FOQuery<FOFormulaConjunction> foQuery = starQuery.asFOQuery(); // Conversion en FOQuery
 		FOQueryEvaluator<FOFormula> evaluator = GenericFOQueryEvaluator.defaultInstance(); // Créer un évaluateur
-		Iterator<Substitution> queryResults = evaluator.evaluate(foQuery, factBase); // Évaluer la requête
 
-		System.out.printf("Execution of  %s:%n", starQuery);
-		System.out.println("Answers:");
-		if (!queryResults.hasNext()) {
-			System.out.println("No answer.");
-		}
-		while (queryResults.hasNext()) {
-			Substitution result = queryResults.next();
-			System.out.println(result); // Afficher chaque réponse
-		}
-		System.out.println();
+		return evaluator.evaluate(foQuery, factBase);
 	}
 }

@@ -37,15 +37,16 @@ public class RDFHexaStore implements RDFStorage {
     // Effectue les permutations nécessaires pour constuire l'index.
     // On suppose qu'on récupère un triplet au format SPO en entrée.
     public static int[] permuteTriplet(int[] triplet, String ordre) {
+        Map<String, int[]> permutations = Map.of(
+                "OPS", new int[]{2, 1, 0},
+                "OSP", new int[]{2, 0, 1},
+                "POS", new int[]{1, 2, 0},
+                "PSO", new int[]{1, 0, 2},
+                "SOP", new int[]{0, 2, 1}
+        );
 
-        return switch (ordre) {
-            case "OPS" -> new int[]{triplet[2], triplet[1], triplet[0]};
-            case "OSP" -> new int[]{triplet[2], triplet[0], triplet[1]};
-            case "POS" -> new int[]{triplet[1], triplet[2], triplet[0]};
-            case "PSO" -> new int[]{triplet[1], triplet[0], triplet[2]};
-            case "SOP" -> new int[]{triplet[0], triplet[2], triplet[1]};
-            default -> triplet;
-        };
+        int[] indices = permutations.getOrDefault(ordre, new int[]{0, 1, 2});
+        return new int[]{triplet[indices[0]], triplet[indices[1]], triplet[indices[2]]};
     }
 
     /**
@@ -75,19 +76,23 @@ public class RDFHexaStore implements RDFStorage {
      */
     @Override
     public boolean add(RDFAtom atom) {
-        boolean res = rdfAtoms.add(atom);
-        if(res) {
-            int[] atomEncoder = dico_encodeTriplet(atom);
+        if (!rdfAtoms.add(atom)) {return false;}
+        int[] atomEncoder = dico_encodeTriplet(atom);
 
-            this.OPS.ajoutTriplet(permuteTriplet(atomEncoder, "OPS"));
-            this.OSP.ajoutTriplet(permuteTriplet(atomEncoder, "OSP"));
-            this.POS.ajoutTriplet(permuteTriplet(atomEncoder, "POS"));
-            this.PSO.ajoutTriplet(permuteTriplet(atomEncoder, "PSO"));
-            this.SOP.ajoutTriplet(permuteTriplet(atomEncoder, "SOP"));
-            this.SPO.ajoutTriplet(atomEncoder);
-        }
+        Map<String, Index> permutationMap = Map.of(
+                "OPS", this.OPS,
+                "OSP", this.OSP,
+                "POS", this.POS,
+                "PSO", this.PSO,
+                "SOP", this.SOP
+        );
 
-        return res;
+        permutationMap.forEach((key, hexastore) ->
+                hexastore.ajoutTriplet(permuteTriplet(atomEncoder, key))
+        );
+        this.SPO.ajoutTriplet(atomEncoder);
+
+        return true;
     }
 
     /**
@@ -150,7 +155,7 @@ public class RDFHexaStore implements RDFStorage {
             for (int [] result : OPS.searchByOne(o_code)) {results.add(permuteTriplet(result, "OPS"));}
             //for (int [] result : OSP.searchByOne(o_code)) {results.add(permuteTriplet(result, "POS"));}
         } else {
-            //Retourner tous les tuples
+            //???
             int[] array = {s_code, p_code, o_code};
             results = new ArrayList<>();
             results.add(array);
@@ -180,32 +185,22 @@ public class RDFHexaStore implements RDFStorage {
     public Iterator<Substitution> match(StarQuery q) {
         List<RDFAtom> rdfAtoms = q.getRdfAtoms();
 
-        // Initialisation avec les correspondances du premier RDFAtom
         Iterator<Substitution> matchingAtoms = match(rdfAtoms.getFirst());
-        while(matchingAtoms.hasNext()){System.out.println("matchingAtoms : "+matchingAtoms.next());}
         Set<Substitution> currentMatches = new HashSet<>();
         matchingAtoms.forEachRemaining(currentMatches::add);
 
-        // Parcourir les autres RDFAtom
         for (int i = 1; i < rdfAtoms.size(); i++) {
             RDFAtom rdfAtom = rdfAtoms.get(i);
             Iterator<Substitution> matchResult = match(rdfAtom);
-            while(matchingAtoms.hasNext()){System.out.println("matchResult : "+matchResult.next());}
 
-            // Convertir matchResult en un ensemble pour une intersection rapide
             Set<Substitution> nextMatches = new HashSet<>();
             matchResult.forEachRemaining(nextMatches::add);
-
-            // Réaliser l'intersection directement
             currentMatches.retainAll(nextMatches);
 
-            // Si aucune correspondance, sortir rapidement
             if (currentMatches.isEmpty()) {
                 return Collections.emptyIterator();
             }
         }
-
-        // Retourner l'itérateur des résultats finaux
         return currentMatches.iterator();
     }
 
