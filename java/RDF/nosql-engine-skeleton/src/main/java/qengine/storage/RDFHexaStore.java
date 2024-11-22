@@ -2,6 +2,7 @@ package main.java.qengine.storage;
 
 import fr.boreal.model.logicalElements.api.*;
 import fr.boreal.model.logicalElements.impl.SubstitutionImpl;
+import main.java.qengine.exceptions.ValueNotFoundException;
 import main.java.qengine.model.*;
 import org.apache.commons.lang3.NotImplementedException;
 
@@ -59,7 +60,7 @@ public class RDFHexaStore implements RDFStorage {
         return this.dictionnary.encodeTriplet(rdfAtom);
     }
 
-    public RDFAtom dico_decodeTriplet(int[] triplet_encode) {
+    public RDFAtom dico_decodeTriplet(int[] triplet_encode) throws ValueNotFoundException {
         return this.dictionnary.decodeTriplet(triplet_encode);
     }
 
@@ -111,9 +112,17 @@ public class RDFHexaStore implements RDFStorage {
         Term p = atom.getTriplePredicate();
         Term o = atom.getTripleObject();
 
-        int s_code = dictionnary.getKey(s);
-        int p_code = dictionnary.getKey(p);
-        int o_code = dictionnary.getKey(o);
+        int s_code = 0;
+        int p_code = 0;
+        int o_code = 0;
+
+        try {
+            s_code = dictionnary.getKey(s);
+            p_code = dictionnary.getKey(p);
+            o_code = dictionnary.getKey(o);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         boolean s_var = s.isLiteral();
         boolean p_var = p.isLiteral();
@@ -162,7 +171,11 @@ public class RDFHexaStore implements RDFStorage {
 
             for (int i = 0; i < result.length; i++) {
                 if (atom.getTerms()[i] instanceof Variable) {
-                    substitution.add((Variable) atom.getTerms()[i], dictionnary.getValue(result[i]));
+                    try {
+                        substitution.add((Variable) atom.getTerms()[i], dictionnary.getValue(result[i]));
+                    } catch (ValueNotFoundException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
             }
             uniqueSubstitutions.add(substitution);
@@ -182,7 +195,6 @@ public class RDFHexaStore implements RDFStorage {
 
         // Initialisation avec les correspondances du premier RDFAtom
         Iterator<Substitution> matchingAtoms = match(rdfAtoms.getFirst());
-        while(matchingAtoms.hasNext()){System.out.println("matchingAtoms : "+matchingAtoms.next());}
         Set<Substitution> currentMatches = new HashSet<>();
         matchingAtoms.forEachRemaining(currentMatches::add);
 
@@ -190,7 +202,6 @@ public class RDFHexaStore implements RDFStorage {
         for (int i = 1; i < rdfAtoms.size(); i++) {
             RDFAtom rdfAtom = rdfAtoms.get(i);
             Iterator<Substitution> matchResult = match(rdfAtom);
-            while(matchingAtoms.hasNext()){System.out.println("matchResult : "+matchResult.next());}
 
             // Convertir matchResult en un ensemble pour une intersection rapide
             Set<Substitution> nextMatches = new HashSet<>();

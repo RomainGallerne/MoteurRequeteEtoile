@@ -59,4 +59,9 @@ public class Index {
 
         return return_list;
     }
+
+    public int size() {
+        return index.size();
+    }
+
 }
