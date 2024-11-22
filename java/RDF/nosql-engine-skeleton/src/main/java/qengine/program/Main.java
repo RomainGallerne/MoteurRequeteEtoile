@@ -15,7 +15,6 @@ import fr.boreal.model.queryEvaluation.api.FOQueryEvaluator;
 import fr.boreal.query_evaluation.generic.GenericFOQueryEvaluator;
 import fr.boreal.storage.natives.SimpleInMemoryGraphStore;
 import fr.lirmm.graphik.graal.api.core.VariableGenerator;
-import main.java.qengine.exceptions.KeyNotFoundException;
 import main.java.qengine.model.*;
 import main.java.qengine.storage.RDFHexaStore;
 import org.eclipse.rdf4j.rio.RDFFormat;
@@ -34,7 +33,7 @@ public final class Main {
 	private static final RDFHexaStore hexastore = new RDFHexaStore();
 
 
-	public static void main(String[] args) throws IOException, KeyNotFoundException {
+	public static void main(String[] args) throws IOException {
 		System.out.println("\n=== Parsing RDF Data ===\n");
 		List<RDFAtom> rdfAtoms = parseRDFData(SAMPLE_DATA_FILE);
 

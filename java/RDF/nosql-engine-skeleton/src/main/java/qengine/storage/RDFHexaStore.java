@@ -2,8 +2,6 @@ package main.java.qengine.storage;
 
 import fr.boreal.model.logicalElements.api.*;
 import fr.boreal.model.logicalElements.impl.SubstitutionImpl;
-import main.java.qengine.exceptions.KeyNotFoundException;
-import main.java.qengine.exceptions.ValueNotFoundException;
 import main.java.qengine.model.*;
 import org.apache.commons.lang3.NotImplementedException;
 
@@ -57,11 +55,11 @@ public class RDFHexaStore implements RDFStorage {
         this.dictionnary.createCodex();
     }
 
-    public int[] dico_encodeTriplet(RDFAtom rdfAtom) throws KeyNotFoundException {
+    public int[] dico_encodeTriplet(RDFAtom rdfAtom) {
         return this.dictionnary.encodeTriplet(rdfAtom);
     }
 
-    public RDFAtom dico_decodeTriplet(int[] triplet_encode) throws ValueNotFoundException{
+    public RDFAtom dico_decodeTriplet(int[] triplet_encode) {
         return this.dictionnary.decodeTriplet(triplet_encode);
     }
 
@@ -79,19 +77,14 @@ public class RDFHexaStore implements RDFStorage {
     public boolean add(RDFAtom atom) {
         boolean res = rdfAtoms.add(atom);
         if(res) {
-            try {
-                int[] atomEncoder = dico_encodeTriplet(atom);
+            int[] atomEncoder = dico_encodeTriplet(atom);
 
-                this.OPS.ajoutTriplet(permuteTriplet(atomEncoder, "OPS"));
-                this.OSP.ajoutTriplet(permuteTriplet(atomEncoder, "OSP"));
-                this.POS.ajoutTriplet(permuteTriplet(atomEncoder, "POS"));
-                this.PSO.ajoutTriplet(permuteTriplet(atomEncoder, "PSO"));
-                this.SOP.ajoutTriplet(permuteTriplet(atomEncoder, "SOP"));
-                this.SPO.ajoutTriplet(atomEncoder);
-            } catch (KeyNotFoundException e) {
-                e.printStackTrace();
-                res = false;
-            }
+            this.OPS.ajoutTriplet(permuteTriplet(atomEncoder, "OPS"));
+            this.OSP.ajoutTriplet(permuteTriplet(atomEncoder, "OSP"));
+            this.POS.ajoutTriplet(permuteTriplet(atomEncoder, "POS"));
+            this.PSO.ajoutTriplet(permuteTriplet(atomEncoder, "PSO"));
+            this.SOP.ajoutTriplet(permuteTriplet(atomEncoder, "SOP"));
+            this.SPO.ajoutTriplet(atomEncoder);
         }
 
         return res;
@@ -104,7 +97,7 @@ public class RDFHexaStore implements RDFStorage {
      */
     @Override
     public long size() {
-        return SPO.size();
+        return rdfAtoms.size();
     }
 
     /**
@@ -118,16 +111,9 @@ public class RDFHexaStore implements RDFStorage {
         Term p = atom.getTriplePredicate();
         Term o = atom.getTripleObject();
 
-        int s_code = 0;
-        int p_code = 0;
-        int o_code = 0;
-        try {
-            s_code = dictionnary.getKey(s);
-            p_code = dictionnary.getKey(p);
-            o_code = dictionnary.getKey(o);
-        } catch (Exception e) {
-
-        }
+        int s_code = dictionnary.getKey(s);
+        int p_code = dictionnary.getKey(p);
+        int o_code = dictionnary.getKey(o);
 
         boolean s_var = s.isLiteral();
         boolean p_var = p.isLiteral();
@@ -171,18 +157,16 @@ public class RDFHexaStore implements RDFStorage {
         }
 
         Set<Substitution> uniqueSubstitutions = new HashSet<>();
-        try {
-            for (int[] result : results) {
-                Substitution substitution = new SubstitutionImpl();
+        for (int[] result : results) {
+            Substitution substitution = new SubstitutionImpl();
 
-                for (int i = 0; i < result.length; i++) {
-                    if (atom.getTerms()[i] instanceof Variable) {
-                        substitution.add((Variable) atom.getTerms()[i], dictionnary.getValue(result[i]));
-                    }
+            for (int i = 0; i < result.length; i++) {
+                if (atom.getTerms()[i] instanceof Variable) {
+                    substitution.add((Variable) atom.getTerms()[i], dictionnary.getValue(result[i]));
                 }
-                uniqueSubstitutions.add(substitution);
             }
-        } catch (ValueNotFoundException e) { e.printStackTrace(); }
+            uniqueSubstitutions.add(substitution);
+        }
 
         return uniqueSubstitutions.iterator();
     }
