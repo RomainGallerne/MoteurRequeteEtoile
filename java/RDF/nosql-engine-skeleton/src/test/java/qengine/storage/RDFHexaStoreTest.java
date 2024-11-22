@@ -340,49 +340,6 @@ public class RDFHexaStoreTest {
     @Test
     public void testMatchStarQuery() {
         RDFHexaStore store = new RDFHexaStore();
-        RDFAtom rdfAtom1 = new RDFAtom(PREDICATE_1, OBJECT_1, SUBJECT_1);
-        RDFAtom rdfAtom2 = new RDFAtom(PREDICATE_2, OBJECT_2, SUBJECT_2);
-        RDFAtom rdfAtom3 = new RDFAtom(PREDICATE_1, OBJECT_1, SUBJECT_2);
-        RDFAtom rdfAtom4 = new RDFAtom(PREDICATE_2, SUBJECT_2, OBJECT_2);
-        RDFAtom rdfAtom5 = new RDFAtom(PREDICATE_1, SUBJECT_1, OBJECT_1);
-
-        store.add_to_dico(rdfAtom1.getTerms());
-        store.add_to_dico(rdfAtom2.getTerms());
-        store.add_to_dico(rdfAtom3.getTerms());
-        store.add_to_dico(rdfAtom4.getTerms());
-        store.add_to_dico(rdfAtom5.getTerms());
-
-        store.dico_createCodex();
-
-        store.add(rdfAtom1);
-        store.add(rdfAtom2);
-        store.add(rdfAtom3);
-        store.add(rdfAtom4);
-        store.add(rdfAtom5);
-
-        Variable centralVariable = (Variable) termFactory.createOrGetVariable("?x");
-        Term predicate1 = termFactory.createOrGetLiteral("predicate1");
-        Term object1 = termFactory.createOrGetLiteral("object1");
-
-        Term predicate2 = termFactory.createOrGetLiteral("predicate2");
-        Term object2 = termFactory.createOrGetLiteral("object2");
-
-        RDFAtom atom1 = new RDFAtom(centralVariable, predicate1, object1);
-        RDFAtom atom2 = new RDFAtom(centralVariable, predicate2, object2);
-
-        List<RDFAtom> rdfAtoms = List.of(atom1, atom2);
-        Collection<Variable> answerVariables = List.of(centralVariable);
-
-        StarQuery query = new StarQuery("Requête étoile valide", rdfAtoms, answerVariables);
-
-
-        store.match(query);
-
-
-    }
-
-    public static void main(String[] args) {
-        RDFHexaStore store = new RDFHexaStore();
         RDFAtom rdfAtom1 = new RDFAtom(SUBJECT_1, PREDICATE_1, OBJECT_1);
         RDFAtom rdfAtom2 = new RDFAtom(SUBJECT_1, PREDICATE_2, OBJECT_2);
         RDFAtom rdfAtom3 = new RDFAtom(SUBJECT_1, PREDICATE_3, OBJECT_3);
@@ -401,26 +358,22 @@ public class RDFHexaStoreTest {
         RDFAtom atom2 = new RDFAtom(VAR_X, PREDICATE_2, OBJECT_2);
         RDFAtom atom3 = new RDFAtom(VAR_X, PREDICATE_3, OBJECT_3);
 
-        System.out.println(rdfAtom1);
-        System.out.println(atom1);
-
         List<RDFAtom> rdfAtoms = List.of(atom1,atom2,atom3);
         Collection<Variable> answerVariables = List.of(VAR_X);
 
         StarQuery query = new StarQuery("Requête étoile valide", rdfAtoms, answerVariables);
 
 
-        Iterator<Substitution> match_result2 = store.match(atom1);
-        while(match_result2.hasNext()){System.out.println(match_result2.next());}
-
-
-        System.out.println(query.toString());
-
-        System.out.println("test");
-
         Iterator<Substitution> match_result = store.match(query);
+        List<Substitution> matchedList = new ArrayList<>();
+        match_result.forEachRemaining(matchedList::add);
 
-        while(match_result.hasNext()){System.out.println(match_result.next());}
+        SubstitutionImpl firstResult = new SubstitutionImpl();
+        firstResult.add(VAR_X, SUBJECT_1);
+
+        assertEquals(1, matchedList.size(), "There should be three matched RDFAtoms");
+        assertTrue(matchedList.contains(firstResult), "Missing substitution: " + firstResult);
+
+
     }
-
 }
