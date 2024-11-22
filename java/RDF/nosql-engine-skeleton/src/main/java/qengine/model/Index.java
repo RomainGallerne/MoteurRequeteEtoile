@@ -1,6 +1,7 @@
 package main.java.qengine.model;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static java.lang.System.exit;
 
@@ -8,15 +9,18 @@ public class Index {
     private final Map<Integer, Map<Integer, List<Integer>>> index;
 
     public Index() {
-        this.index = new HashMap<>();
+        // Utilisation de ConcurrentHashMap pour éviter les problèmes de concurrence (si nécessaire)
+        this.index = new ConcurrentHashMap<>();
     }
 
     // Méthode pour ajouter un triplet
     public void ajoutTriplet(int[] triplet) {
-        index
-                .computeIfAbsent(triplet[0], k -> new HashMap<>()) // Si le sujet (triplet[0]) n'existe pas, on le crée
-                .computeIfAbsent(triplet[1], k -> new ArrayList<>()) // Si le prédicat (triplet[1]) n'existe pas, on le crée
-                .add(triplet[2]); // On ajoute l'objet (triplet[2])
+        // Obtenir ou créer le sous-index pour le sujet (triplet[0])
+        index.computeIfAbsent(triplet[0], k -> new ConcurrentHashMap<>())
+                // Obtenir ou créer la liste pour le prédicat (triplet[1])
+                .computeIfAbsent(triplet[1], k -> new ArrayList<>())
+                // Ajouter l'objet (triplet[2]) si non déjà présent
+                .add(triplet[2]);
     }
 
     // Méthode pour rechercher des triplets pour les trois éléments données
