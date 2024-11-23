@@ -39,6 +39,17 @@ public class DIctionnaryTest {
     }
 
     @Test
+    public void testGetInvalidKey() {
+        Dictionnary dictionnary = new Dictionnary();
+
+        dictionnary.addTerm(PREDICATE_1);
+
+        dictionnary.createCodex();
+
+        assertThrows(KeyNotFoundException.class, () -> dictionnary.getKey(SUBJECT_1));
+    }
+
+    @Test
     public void testGetValue() {
         Dictionnary dictionnary = new Dictionnary();
 
@@ -53,6 +64,17 @@ public class DIctionnaryTest {
         } catch (ValueNotFoundException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Test
+    public void testGetInvalidValue() {
+        Dictionnary dictionnary = new Dictionnary();
+
+        dictionnary.addTerm(PREDICATE_1);
+
+        dictionnary.createCodex();
+
+        assertThrows(ValueNotFoundException.class, () -> dictionnary.getValue(3));
     }
 
     @Test
