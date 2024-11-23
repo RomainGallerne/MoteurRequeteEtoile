@@ -47,11 +47,12 @@ public final class Main {
 		for (int i=0; i < rdfAtoms_size; i++){
 			hexastore.add(rdfAtoms.get(i));
 			if(i%1000==0){
-				System.out.println((float)i/(float)rdfAtoms_size * 100.0);
+				System.out.print("█");
+				//System.out.print(Integer.toString((int)((float)i/(float)rdfAtoms_size * 100.0)) + "% -> ");
 			}
 
 		}
-		System.out.println("Done.");
+		System.out.println("\nDone.");
 
 		System.out.println("\n=== Match Atom ===");
 		TermFactory termFactory = SameObjectTermFactory.instance();
@@ -87,10 +88,10 @@ public final class Main {
 		while(match_result.hasNext()){System.out.println(match_result.next());}
 		System.out.print("------------\n");
 
-		System.out.println("Match object : " + match_predicate_object.toString());
-		match_result = hexastore.match(match_predicate_object);
-		while(match_result.hasNext()){System.out.println(match_result.next());}
-		System.out.println("------------");
+//		System.out.println("Match object : " + match_predicate_object.toString());
+//		match_result = hexastore.match(match_predicate_object);
+//		while(match_result.hasNext()){System.out.println(match_result.next());}
+//		System.out.println("------------");
 
 
 		System.out.println("\n=== Parsing Sample Queries ===\n");
@@ -180,7 +181,8 @@ public final class Main {
 			while (rdfAtomParser.hasNext()) {
 				RDFAtom atom = rdfAtomParser.next();
 				rdfAtoms.add(atom);  // Stocker l'atome dans la collection
-				System.out.println("RDF Atom #" + (++count) + ": " + atom);
+//				System.out.println("RDF Atom #" + (count) + ": " + atom);
+				count ++;
 			}
 			System.out.println("Total RDF Atoms parsed: " + count);
 		}
@@ -203,10 +205,10 @@ public final class Main {
 				Query query = queryParser.next();
 				if (query instanceof StarQuery starQuery) {
 					starQueries.add(starQuery);  // Stocker la requête dans la collection
-					System.out.println("Star Query #" + (++queryCount) + ":");
-					System.out.println("  Central Variable: " + starQuery.getCentralVariable().label());
-					System.out.println("  RDF Atoms:");
-					starQuery.getRdfAtoms().forEach(atom -> System.out.println("    " + atom));
+//					System.out.println("Star Query #" + (++queryCount) + ":");
+//					System.out.println("  Central Variable: " + starQuery.getCentralVariable().label());
+//					System.out.println("  RDF Atoms:");
+//					starQuery.getRdfAtoms().forEach(atom -> System.out.println("    " + atom));
 				} else {
 					System.err.println("Requête inconnue ignorée.");
 				}
