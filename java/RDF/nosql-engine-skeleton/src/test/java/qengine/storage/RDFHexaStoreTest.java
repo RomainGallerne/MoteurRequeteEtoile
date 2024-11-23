@@ -4,6 +4,7 @@ import fr.boreal.model.logicalElements.api.*;
 import fr.boreal.model.logicalElements.factory.api.TermFactory;
 import fr.boreal.model.logicalElements.factory.impl.SameObjectTermFactory;
 import fr.boreal.model.logicalElements.impl.SubstitutionImpl;
+import main.java.qengine.exceptions.KeyNotFoundException;
 import main.java.qengine.model.StarQuery;
 import org.apache.commons.lang3.NotImplementedException;
 import main.java.qengine.model.RDFAtom;
@@ -67,7 +68,7 @@ public class RDFHexaStoreTest {
     }
 
     @Test
-    public void testAddRDFAtom() {
+    public void testAddRDFAtom() throws KeyNotFoundException {
         RDFHexaStore store = new RDFHexaStore();
         RDFAtom atom1 = new RDFAtom(SUBJECT_1, PREDICATE_1, OBJECT_1);
 
@@ -77,7 +78,7 @@ public class RDFHexaStoreTest {
     }
 
     @Test
-    public void testAddDuplicateAtom() {
+    public void testAddDuplicateAtom() throws KeyNotFoundException {
         RDFHexaStore store = new RDFHexaStore();
         RDFAtom atom1 = new RDFAtom(SUBJECT_1, PREDICATE_1, OBJECT_1);
 
@@ -88,7 +89,7 @@ public class RDFHexaStoreTest {
     }
 
     @Test
-    public void testSize() {
+    public void testSize() throws KeyNotFoundException {
         RDFHexaStore store = new RDFHexaStore();
         RDFAtom atom1 = new RDFAtom(SUBJECT_1, PREDICATE_1, OBJECT_1);
         RDFAtom atom2 = new RDFAtom(SUBJECT_2, PREDICATE_1, OBJECT_2);
@@ -106,7 +107,7 @@ public class RDFHexaStoreTest {
     }
 
     @Test
-    public void testMatchAtomWithSOrders() {
+    public void testMatchAtomWithSOrders() throws KeyNotFoundException {
         RDFHexaStore store = new RDFHexaStore();
         RDFAtom rdfAtom1 = new RDFAtom(SUBJECT_1, PREDICATE_1, OBJECT_1);
         RDFAtom rdfAtom2 = new RDFAtom(SUBJECT_2, PREDICATE_1, OBJECT_2);
@@ -157,7 +158,7 @@ public class RDFHexaStoreTest {
     }
 
     @Test
-    public void testMatchAtomWithOOrders() {
+    public void testMatchAtomWithOOrders() throws KeyNotFoundException {
         RDFHexaStore store = new RDFHexaStore();
         RDFAtom rdfAtom1 = new RDFAtom(OBJECT_1, PREDICATE_1, SUBJECT_1);
         RDFAtom rdfAtom2 = new RDFAtom(OBJECT_2, PREDICATE_1, SUBJECT_2);
@@ -208,7 +209,7 @@ public class RDFHexaStoreTest {
     }
 
     @Test
-    public void testMatchAtomWithPOrders() {
+    public void testMatchAtomWithPOrders() throws KeyNotFoundException {
         RDFHexaStore store = new RDFHexaStore();
         RDFAtom rdfAtom1 = new RDFAtom(PREDICATE_1, OBJECT_1, SUBJECT_1);
         RDFAtom rdfAtom2 = new RDFAtom(PREDICATE_2, OBJECT_2, SUBJECT_2);
@@ -259,7 +260,7 @@ public class RDFHexaStoreTest {
     }
 
     @Test
-    public void testMatchAtomWith2Vars() {
+    public void testMatchAtomWith2Vars() throws KeyNotFoundException {
         RDFHexaStore store = new RDFHexaStore();
         RDFAtom rdfAtom1 = new RDFAtom(SUBJECT_1, PREDICATE_1, OBJECT_1);
         RDFAtom rdfAtom2 = new RDFAtom(PREDICATE_1, SUBJECT_2, OBJECT_2);
@@ -337,8 +338,46 @@ public class RDFHexaStoreTest {
 
     }
 
+
     @Test
-    public void testMatchStarQuery() {
+    public void testMatchAtomWithNoVars() throws KeyNotFoundException {
+        RDFHexaStore store = new RDFHexaStore();
+        RDFAtom rdfAtom1 = new RDFAtom(SUBJECT_1, PREDICATE_1, OBJECT_1);
+
+        store.add_to_dico(rdfAtom1.getTerms()); // RDFAtom(subject1, triple, object1)
+
+        store.dico_createCodex();
+
+        store.add(rdfAtom1);
+
+        // Case 1 : Atom found
+        RDFAtom matchingAtom = new RDFAtom(SUBJECT_1, PREDICATE_1, OBJECT_1);
+        Iterator<Substitution> matchedAtoms = store.match(matchingAtom);
+        List<Substitution> matchedList = new ArrayList<>();
+        matchedAtoms.forEachRemaining(matchedList::add);
+
+        Substitution uniqueResult = new SubstitutionImpl();
+        List<Substitution> resultSet = new ArrayList<>();
+        resultSet.add(uniqueResult);
+
+        assertEquals(1, matchedList.size(), "There should be one matched RDFAtoms");
+        assertEquals(resultSet, matchedList, "Missing substitution: " + resultSet);
+
+        // Case 2
+        matchingAtom = new RDFAtom(SUBJECT_2, PREDICATE_2, OBJECT_2);
+        matchedAtoms = store.match(matchingAtom);
+        matchedList = new ArrayList<>();
+        matchedAtoms.forEachRemaining(matchedList::add);
+
+        resultSet = new ArrayList<>();
+
+        assertEquals(0, matchedList.size(), "There should be one matched RDFAtoms");
+        assertEquals(resultSet, matchedList, "Missing substitution: " + resultSet);
+
+    }
+
+    @Test
+    public void testMatchStarQuery() throws KeyNotFoundException {
         RDFHexaStore store = new RDFHexaStore();
         RDFAtom rdfAtom1 = new RDFAtom(SUBJECT_1, PREDICATE_1, OBJECT_1);
         RDFAtom rdfAtom2 = new RDFAtom(SUBJECT_1, PREDICATE_2, OBJECT_2);
@@ -375,5 +414,16 @@ public class RDFHexaStoreTest {
         assertTrue(matchedList.contains(firstResult), "Missing substitution: " + firstResult);
 
 
+    }
+
+    @Test
+    public void testInvalidKeyAdd() {
+        RDFHexaStore store = new RDFHexaStore();
+        RDFAtom rdfAtom1 = new RDFAtom(SUBJECT_1, PREDICATE_1, OBJECT_1);
+        store.add_to_dico(rdfAtom1.getTerms());
+        store.dico_createCodex();
+
+        RDFAtom rdfAtom2 = new RDFAtom(PREDICATE_2, SUBJECT_2, OBJECT_2);
+        assertThrows(RuntimeException.class, () -> store.add(rdfAtom2));
     }
 }

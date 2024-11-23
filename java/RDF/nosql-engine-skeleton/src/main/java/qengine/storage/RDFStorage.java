@@ -6,6 +6,7 @@ import java.util.stream.Stream;
 
 import fr.boreal.model.logicalElements.api.Atom;
 import fr.boreal.model.logicalElements.api.Substitution;
+import main.java.qengine.exceptions.KeyNotFoundException;
 import main.java.qengine.model.RDFAtom;
 import main.java.qengine.model.StarQuery;
 

@@ -1,7 +1,6 @@
 package main.java.qengine.model;
 
 import fr.boreal.model.logicalElements.api.Term;
-import main.java.qengine.exceptions.KeyNotFoundException;
 import main.java.qengine.exceptions.ValueNotFoundException;
 
 import java.util.*;
@@ -35,21 +34,21 @@ public class Dictionnary {
     }
 
     /// Donne la clé dans le dictionnaire depuis un terme.
+    /// Renvoie -1 si la clé n'existe pas.
     ///
-    /// Accès max en O(n) mais à calculer précisément
-    public int getKey(Term term) throws KeyNotFoundException {
-        if(term.isLiteral()) {
-            List<Term> keys = new ArrayList<>(dictionary.keySet());
+    /// Accès max en O(n) en théorie mais O(log n) en pratique
+    /// car plus le terme est fréquent, plus il est en haut du dictionnaire.
+    public int getKey(Term term) {
+        if(!term.isLiteral()) {return -1;}
+        List<Term> keys = new ArrayList<>(dictionary.keySet());
 
-            for (int i = 0; i < keys.size(); i++) {
-                if (keys.get(i).equals(term)) {
-                    return i;
-                }
+        for (int i = 0; i < keys.size(); i++) {
+            if (keys.get(i).equals(term)) {
+                return i;
             }
-
-            throw new KeyNotFoundException(term); // Le Term n'est pas présent dans le dictionnary
         }
-        return -1; // On essaye d'avoir la value d'une variable
+
+        return -1;
     }
 
     /// Donne la valeur depuis une clé.
@@ -75,11 +74,8 @@ public class Dictionnary {
 
         for (Term term : terms) {
             if (term.isLiteral()) {
-                try {
-                    encodedTerms.add(getKey(term));
-                } catch (KeyNotFoundException e) {
-                    throw new RuntimeException(e);
-                }
+                int term_key = getKey(term);
+                encodedTerms.add(term_key);
             }
         }
 

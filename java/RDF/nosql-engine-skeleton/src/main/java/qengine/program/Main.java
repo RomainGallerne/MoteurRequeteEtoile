@@ -12,16 +12,17 @@ import fr.boreal.model.logicalElements.api.Substitution;
 import fr.boreal.model.queryEvaluation.api.FOQueryEvaluator;
 import fr.boreal.query_evaluation.generic.GenericFOQueryEvaluator;
 import fr.boreal.storage.natives.SimpleInMemoryGraphStore;
+import main.java.qengine.exceptions.KeyNotFoundException;
 import main.java.qengine.model.*;
 import main.java.qengine.storage.RDFHexaStore;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import main.java.qengine.parser.RDFAtomParser;
 import main.java.qengine.parser.StarQuerySparQLParser;
 
+import javax.annotation.processing.Generated;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public final class Main {
 
@@ -31,7 +32,7 @@ public final class Main {
 	private static final RDFHexaStore hexastore = new RDFHexaStore();
 
 
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws IOException, KeyNotFoundException {
 		System.out.println("\n=== Parsing RDF Data ===\n");
 		List<RDFAtom> rdfAtoms = parseRDFData(SAMPLE_DATA_FILE);
 
@@ -57,33 +58,33 @@ public final class Main {
 		System.out.println("\n=== Match Atom ===");
 		TermFactory termFactory = SameObjectTermFactory.instance();
 		Variable var1 = termFactory.createOrGetVariable("?x0");
-		Variable var2 = termFactory.createOrGetVariable("?x1");
+		//Variable var2 = termFactory.createOrGetVariable("?x1");
 		Iterator<Substitution> match_result;
 
 		RDFAtom first_atom = rdfAtoms.getFirst();
 
 		RDFAtom match_object = new RDFAtom(first_atom.getTripleSubject(), first_atom.getTriplePredicate(), var1);
-		//RDFAtom match_predicate = new RDFAtom(first_atom.getTripleSubject(), var1, first_atom.getTripleObject());
+//		RDFAtom match_predicate = new RDFAtom(first_atom.getTripleSubject(), var1, first_atom.getTripleObject());
 		RDFAtom match_subject = new RDFAtom(var1, first_atom.getTriplePredicate(), first_atom.getTripleObject());
 
-		RDFAtom match_predicate_object = new RDFAtom(first_atom.getTripleSubject(), var1, var2);
-		//RDFAtom match_subject_predicate = new RDFAtom(var1, var2, first_atom.getTripleObject());
-		//RDFAtom match_subject_object = new RDFAtom(var1, first_atom.getTriplePredicate(), var2);
+//		RDFAtom match_predicate_object = new RDFAtom(first_atom.getTripleSubject(), var1, var2);
+//		RDFAtom match_subject_predicate = new RDFAtom(var1, var2, first_atom.getTripleObject());
+//		RDFAtom match_subject_object = new RDFAtom(var1, first_atom.getTriplePredicate(), var2);
 
-		System.out.println("Atome de base : " + first_atom.toString());
+		System.out.println("Atome de base : " + first_atom);
 		System.out.println("Atome encodé : " + Arrays.toString(hexastore.dico_encodeTriplet(first_atom)) + "\n");
 
-		System.out.println("Match object : " + first_atom.toString());
+		System.out.println("Match object : " + first_atom);
 		match_result = hexastore.match(first_atom);
 		while(match_result.hasNext()){System.out.println(match_result.next());}
 		System.out.print("------------\n");
 
-		System.out.println("Match object : " + match_object.toString());
+		System.out.println("Match object : " + match_object);
 		match_result = hexastore.match(match_object);
 		while(match_result.hasNext()){System.out.println(match_result.next());}
 		System.out.print("------------\n");
 
-		System.out.println("Match object : " + match_subject.toString());
+		System.out.println("Match object : " + match_subject);
 		match_result = hexastore.match(match_subject);
 		while(match_result.hasNext()){System.out.println(match_result.next());}
 		System.out.print("------------\n");
@@ -108,22 +109,24 @@ public final class Main {
 		System.out.println("\n=== Correction et complétude ===\n");
 		//Test de correction
 		//Tous les éléments de la starQuery sont dans integraal
-		if (hexastoreResults.containsAll(integraalResults)) {
+		if (integraalResults.containsAll(hexastoreResults)) {
 			System.out.println("Matching Correct ✔");
 		} else {
 			System.out.println("Matching Incorrect");
+			System.out.println(hexastoreResults);
 		}
 
 		//Test de complétude
-		//Tous les éléments de integraal sont dans la starquerry
-		if (integraalResults.containsAll(hexastoreResults)) {
+		//Tous les éléments integral sont dans la starquerry
+		if (hexastoreResults.containsAll(integraalResults)) {
 			System.out.println("Matching Complet ✔");
 		} else {
 			System.out.println("Matching Incomplet");
+			System.out.println(hexastoreResults);
 		}
 	}
 
-	private static Set<Set<Substitution>> executeWithIntegraal(List<RDFAtom> rdfAtoms, List<StarQuery> starQueries, boolean verbose) {
+	public static Set<Set<Substitution>> executeWithIntegraal(List<RDFAtom> rdfAtoms, List<StarQuery> starQueries, boolean verbose) {
 		// Préparer la fact base
 		FactBase factBase = new SimpleInMemoryGraphStore();
 		rdfAtoms.forEach(factBase::add);
@@ -147,7 +150,7 @@ public final class Main {
 		return results;
 	}
 
-	private static Set<Set<Substitution>> executeWithHexastore(List<StarQuery> starQueries, boolean verbose) {
+	public static Set<Set<Substitution>> executeWithHexastore(List<StarQuery> starQueries, boolean verbose) {
 		Set<Set<Substitution>> results = new HashSet<>();
 
 		for (StarQuery starQuery : starQueries) {
@@ -199,7 +202,7 @@ public final class Main {
 		List<StarQuery> starQueries = new ArrayList<>();
 
 		try (StarQuerySparQLParser queryParser = new StarQuerySparQLParser(queryFilePath)) {
-			int queryCount = 0;
+//			int queryCount = 0;
 
 			while (queryParser.hasNext()) {
 				Query query = queryParser.next();
@@ -223,7 +226,7 @@ public final class Main {
 	 *
 	 * @param starQuery La requête à exécuter
 	 * @param factBase  Le store contenant les atomes
-	 * @return
+	 * @return Itérateur de substituions correspondant à la variable de la requête.
 	 */
 	private static Iterator<Substitution> executeStarQuery(StarQuery starQuery, FactBase factBase) {
 		FOQuery<FOFormulaConjunction> foQuery = starQuery.asFOQuery(); // Conversion en FOQuery

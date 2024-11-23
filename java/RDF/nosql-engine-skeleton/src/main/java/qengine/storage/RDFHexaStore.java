@@ -5,7 +5,6 @@ import fr.boreal.model.logicalElements.impl.SubstitutionImpl;
 import main.java.qengine.exceptions.KeyNotFoundException;
 import main.java.qengine.exceptions.ValueNotFoundException;
 import main.java.qengine.model.*;
-import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -62,10 +61,6 @@ public class RDFHexaStore implements RDFStorage {
         return this.dictionnary.encodeTriplet(rdfAtom);
     }
 
-    public RDFAtom dico_decodeTriplet(int[] triplet_encode) throws ValueNotFoundException {
-        return this.dictionnary.decodeTriplet(triplet_encode);
-    }
-
     public void add_to_dico(Term[] terms){
         Arrays.stream(terms).forEach(dictionnary::addTerm);
     }
@@ -80,6 +75,17 @@ public class RDFHexaStore implements RDFStorage {
     public boolean add(RDFAtom atom) {
         if (!rdfAtoms.add(atom)) {return false;}
         int[] atomEncoder = dico_encodeTriplet(atom);
+
+        for (int i = 0; i < atomEncoder.length; i++) {
+            if (atomEncoder[i] == -1){
+                try {
+                    throw new KeyNotFoundException(atom.getTerm(i));
+                } catch (KeyNotFoundException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+
 
         Map<String, Index> permutationMap = Map.of(
                 "OPS", this.OPS,
@@ -118,21 +124,26 @@ public class RDFHexaStore implements RDFStorage {
         Term p = atom.getTriplePredicate();
         Term o = atom.getTripleObject();
 
-        int s_code = 0;
-        int p_code = 0;
-        int o_code = 0;
-
-        try {
-            s_code = dictionnary.getKey(s);
-            p_code = dictionnary.getKey(p);
-            o_code = dictionnary.getKey(o);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
         boolean s_var = s.isLiteral();
         boolean p_var = p.isLiteral();
         boolean o_var = o.isLiteral();
+
+        int s_code = -1;
+        int p_code = -1;
+        int o_code = -1;
+
+        if(s_var){
+            s_code = dictionnary.getKey(s);
+            if (s_code == -1) {return Collections.emptyIterator();}
+        }
+        if(p_var){
+            p_code = dictionnary.getKey(p);
+            if (p_code == -1) {return Collections.emptyIterator();}
+        }
+        if(o_var){
+            o_code = dictionnary.getKey(o);
+            if (o_code == -1) {return Collections.emptyIterator();}
+        }
 
         List<int[]> results = new ArrayList<>();
         List<int[]> ordered_results = new ArrayList<>();

@@ -20,6 +20,7 @@ public class DIctionnaryTest {
     private static final Literal<String> OBJECT_1 = SameObjectTermFactory.instance().createOrGetLiteral("object1");
     private static final Literal<String> SUBJECT_2 = SameObjectTermFactory.instance().createOrGetLiteral("subject2");
     private static final Literal<String> OBJECT_2 = SameObjectTermFactory.instance().createOrGetLiteral("object2");
+    private static final Variable VAR_X = SameObjectTermFactory.instance().createOrGetVariable("varX");
 
     @Test
     public void testGetKey() {
@@ -31,11 +32,15 @@ public class DIctionnaryTest {
 
         dictionnary.createCodex();
 
-        try {
-            assertEquals(0, dictionnary.getKey(SUBJECT_1), "SUBJECT_1 is supposed to be on first index");
-        } catch (KeyNotFoundException e) {
-            throw new RuntimeException(e);
-        }
+        assertEquals(0, dictionnary.getKey(SUBJECT_1), "SUBJECT_1 is supposed to be on first index");
+    }
+
+    @Test
+    public void testGetVariableKey() {
+        Dictionnary dictionnary = new Dictionnary();
+        dictionnary.createCodex();
+
+        assertEquals(-1, dictionnary.getKey(VAR_X));
     }
 
     @Test
@@ -46,7 +51,7 @@ public class DIctionnaryTest {
 
         dictionnary.createCodex();
 
-        assertThrows(KeyNotFoundException.class, () -> dictionnary.getKey(SUBJECT_1));
+        assertEquals(-1, dictionnary.getKey(SUBJECT_1));
     }
 
     @Test
@@ -128,5 +133,14 @@ public class DIctionnaryTest {
         }
 
         assertEquals(decodedRDFAtom, rdfAtom1, "The RDFAtom is supposed to be rdfAtom1");
+    }
+
+    @Test
+    public void toStringTest() {
+        Dictionnary dictionnary = new Dictionnary();
+        dictionnary.addTerm(SUBJECT_1);
+        dictionnary.createCodex();
+
+        assertEquals("subject1 : 1\n", dictionnary.toString(), "ToString is supposed to return 'term : key'");
     }
 }
