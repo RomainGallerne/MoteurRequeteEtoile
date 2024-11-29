@@ -218,7 +218,6 @@ public class RDFHexaStore implements RDFStorage {
             RDFAtom rdfAtom = rdfAtoms.get(i);
             Iterator<Substitution> matchResult = match(rdfAtom);
 
-
             Set<Substitution> nextMatches = new HashSet<>();
             matchResult.forEachRemaining(nextMatches::add);
             currentMatches.retainAll(nextMatches);

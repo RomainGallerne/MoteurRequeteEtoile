@@ -412,8 +412,6 @@ public class RDFHexaStoreTest {
 
         assertEquals(1, matchedList.size(), "There should be three matched RDFAtoms");
         assertTrue(matchedList.contains(firstResult), "Missing substitution: " + firstResult);
-
-
     }
 
     @Test
