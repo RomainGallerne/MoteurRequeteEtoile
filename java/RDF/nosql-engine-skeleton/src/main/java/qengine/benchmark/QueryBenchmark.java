@@ -28,13 +28,34 @@ public class QueryBenchmark {
         List<Query> queries = filterDuplicates(parseQueries(QUERY_FILE));
         List<StarQuery> starQueries = StarQueryExtractor(queries);
 
-        // Execute queries
-        List<Set<Substitution>> hexastoreResults = executeWithHexastore(starQueries, hexastore, false);
+        // Diviser les 20 % des requêtes initiales
+        int twentyPercentCount = (int) Math.ceil(starQueries.size() * 0.2);
+        List<StarQuery> initialQueries = starQueries.subList(0, twentyPercentCount);
+        List<StarQuery> remainingQueries = starQueries.subList(twentyPercentCount, starQueries.size());
 
-        hexastoreResults = uniformizeList(hexastoreResults);
+        List<Set<Substitution>> initialResults = executeWithHexastore(initialQueries, hexastore, false);
 
+        // Uniformisation des résultats
+        initialResults = uniformizeList(initialResults);
+
+        // Instancier le timer
+        ExecutionTimer timer = new ExecutionTimer();
+        timer.start(); // Chronométrage commence après les 20 %
+
+        List<Set<Substitution>> remainingResults = executeWithHexastore(remainingQueries, hexastore, false);
+        remainingResults = uniformizeList(remainingResults);
+
+        // Arrêter le chronométrage et afficher les résultats
+        ExecutionTimer.TimerReport report = timer.stop();
+        System.out.println(report);
+
+        // Combiner les résultats des deux groupes
+        List<Set<Substitution>> hexastoreResults = combineResults(initialResults, remainingResults);
+
+        // Calcul des tailles des sous-ensembles
         Map<Integer, Integer> subSetSizes = countSubsetSizes(hexastoreResults);
 
+        // Lancer l'interface graphique pour afficher l'histogramme
         SwingUtilities.invokeLater(() -> {
             HistogramFrame frame = new HistogramFrame(subSetSizes);
             frame.setVisible(true);
@@ -45,6 +66,16 @@ public class QueryBenchmark {
 
         // Benchmarks
     }
+
+    private List<Set<Substitution>> combineResults(List<Set<Substitution>> initialResults,
+                                                   List<Set<Substitution>> remainingResults) {
+        // Combine les résultats des requêtes initiales et restantes
+        List<Set<Substitution>> combinedResults = new ArrayList<>();
+        combinedResults.addAll(initialResults);
+        combinedResults.addAll(remainingResults);
+        return combinedResults;
+    }
+
 
     private void buildIndexesAndDictionary(List<RDFAtom> rdf_data){
         for (RDFAtom rdfAtom : rdf_data){hexastore.add_to_dico(rdfAtom.getTerms());}
