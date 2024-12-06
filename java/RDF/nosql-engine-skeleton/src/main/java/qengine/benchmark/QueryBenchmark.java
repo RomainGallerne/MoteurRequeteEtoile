@@ -169,7 +169,7 @@ public class QueryBenchmark {
     }
 
     public static void main(String[] args) throws IOException {
-        new QueryBenchmark("STAR_ALL_workload.queryset","100K.nt");
+        new QueryBenchmark("merged_1M.queryset","500K.nt");
     }
 
 }
