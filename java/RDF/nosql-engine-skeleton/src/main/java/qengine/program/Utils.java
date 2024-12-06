@@ -54,17 +54,21 @@ public class Utils {
     public static List<StarQuery> parseStarQueries(String queryFilePath) throws IOException {
         List<StarQuery> starQueries = new ArrayList<>();
 
+        Query query = null;
         try (StarQuerySparQLParser queryParser = new StarQuerySparQLParser(queryFilePath)) {
 
             while (queryParser.hasNext()) {
-                Query query = queryParser.next();
+                query = queryParser.next();
                 if (query instanceof StarQuery starQuery) {
                     starQueries.add(starQuery);
                 } else {
                     System.err.println("Requête inconnue ignorée.");
                 }
             }
-            System.out.println("Total StarQueries parsed: " + starQueries.size());
+            System.out.println("[INFO] Total StarQueries parsed: " + starQueries.size());
+        } catch (Exception e) {
+            System.out.println("[ERREUR] Requête mal formée");
+            System.out.println(query);
         }
         return starQueries;
     }
@@ -78,13 +82,17 @@ public class Utils {
     public static List<Query> parseQueries(String queryFilePath) throws IOException {
         List<Query> queries = new ArrayList<>();
 
+        Query query = null;
         try (StarQuerySparQLParser queryParser = new StarQuerySparQLParser(queryFilePath)) {
 
             while (queryParser.hasNext()) {
-                Query query = queryParser.next();
+                query = queryParser.next();
                 queries.add(query);  // Stocker la requête dans la collection
             }
-            System.out.println("Total Queries parsed: " + queries.size());
+            System.out.println("[INFO] Total Queries parsed: " + queries.size());
+        } catch (Exception e) {
+            System.out.println("[ERREUR] Requête invalide");
+            System.out.println(query);
         }
         return queries;
     }

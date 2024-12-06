@@ -26,54 +26,67 @@ public class QueryBenchmark {
 
         // Parsing Queries
         List<Query> queries = filterDuplicates(parseQueries(QUERY_FILE));
-        List<StarQuery> starQueries = StarQueryExtractor(queries);
+        System.out.println("[INFO] Taille après doublons supprimés : " + queries.size());
 
-        // Diviser les 20 % des requêtes initiales
+        List<StarQuery> starQueries = StarQueryExtractor(queries);
+        System.out.println("[INFO] Taille après extraction des starQueries : " + starQueries.size());
+
+        // Exécuter les requêtes
+        List<Set<Substitution>> hexastoreResults = executeWithIntegraal(rdf_data, starQueries, false);
+
+        // Uniformisation des résultats
+        hexastoreResults = uniformizeList(starQueries, hexastoreResults);
+        System.out.println("[INFO] Taille après uniformisation du nombre de résultats : " + starQueries.size());
+
+        Map<Integer, Integer> subSetSizes = countSubsetSizes(hexastoreResults);
+
+        SwingUtilities.invokeLater(() -> {
+            HistogramFrame frame = new HistogramFrame(subSetSizes);
+            frame.setVisible(true);
+        });
+
+        runBenchmark_hexastore(starQueries);
+        runBenchmark_integraal(starQueries, rdf_data);
+    }
+
+    private void runBenchmark_hexastore(List<StarQuery> starQueries){
+        // Execution des 20% de requête pour chauffer la JVM
         int twentyPercentCount = (int) Math.ceil(starQueries.size() * 0.2);
         List<StarQuery> initialQueries = starQueries.subList(0, twentyPercentCount);
         List<StarQuery> remainingQueries = starQueries.subList(twentyPercentCount, starQueries.size());
 
         List<Set<Substitution>> initialResults = executeWithHexastore(initialQueries, hexastore, false);
 
-        // Uniformisation des résultats
-        initialResults = uniformizeList(initialResults);
+        // Instancier le timer
+        ExecutionTimer timer = new ExecutionTimer();
+        timer.start();
+
+        // Execution des 80% de requêtes restantes
+        List<Set<Substitution>> remainingResults = executeWithHexastore(remainingQueries, hexastore, false);
+
+        ExecutionTimer.TimerReport report = timer.stop();
+        System.out.println("[BENCHMARK HEXASTORE] : ");
+        System.out.println(report);
+    }
+
+    private void runBenchmark_integraal(List<StarQuery> starQueries, List<RDFAtom> rdf_data){
+        // Execution des 20% de requête pour chauffer la JVM
+        int twentyPercentCount = (int) Math.ceil(starQueries.size() * 0.2);
+        List<StarQuery> initialQueries = starQueries.subList(0, twentyPercentCount);
+        List<StarQuery> remainingQueries = starQueries.subList(twentyPercentCount, starQueries.size());
+
+        List<Set<Substitution>> initialResults = executeWithIntegraal(rdf_data, initialQueries, false);
 
         // Instancier le timer
         ExecutionTimer timer = new ExecutionTimer();
-        timer.start(); // Chronométrage commence après les 20 %
+        timer.start();
 
-        List<Set<Substitution>> remainingResults = executeWithHexastore(remainingQueries, hexastore, false);
-        remainingResults = uniformizeList(remainingResults);
+        // Execution des 80% de requêtes restantes
+        List<Set<Substitution>> remainingResults = executeWithIntegraal(rdf_data, remainingQueries, false);
 
-        // Arrêter le chronométrage et afficher les résultats
         ExecutionTimer.TimerReport report = timer.stop();
+        System.out.println("[BENCHMARK INTEGRAAL] : ");
         System.out.println(report);
-
-        // Combiner les résultats des deux groupes
-        List<Set<Substitution>> hexastoreResults = combineResults(initialResults, remainingResults);
-
-        // Calcul des tailles des sous-ensembles
-        Map<Integer, Integer> subSetSizes = countSubsetSizes(hexastoreResults);
-
-        // Lancer l'interface graphique pour afficher l'histogramme
-        SwingUtilities.invokeLater(() -> {
-            HistogramFrame frame = new HistogramFrame(subSetSizes);
-            frame.setVisible(true);
-        });
-
-        // Uniformiser les requêtes par nombre de réponses
-
-
-        // Benchmarks
-    }
-
-    private List<Set<Substitution>> combineResults(List<Set<Substitution>> initialResults,
-                                                   List<Set<Substitution>> remainingResults) {
-        // Combine les résultats des requêtes initiales et restantes
-        List<Set<Substitution>> combinedResults = new ArrayList<>();
-        combinedResults.addAll(initialResults);
-        combinedResults.addAll(remainingResults);
-        return combinedResults;
     }
 
 
@@ -83,13 +96,20 @@ public class QueryBenchmark {
         for (RDFAtom rdfData : rdf_data) {hexastore.add(rdfData);}
     }
 
-    public static List<Set<Substitution>> uniformizeList(List<Set<Substitution>> hexastoreResults) {
+    public static List<Set<Substitution>> uniformizeList(List<StarQuery> starQueries, List<Set<Substitution>> hexastoreResults) {
+        // Vérification : les deux listes doivent avoir la même taille
+        if (starQueries.size() != hexastoreResults.size()) {
+            throw new IllegalArgumentException("Les listes starQueries et hexastoreResults doivent avoir la même taille.");
+        }
+
         // Étape 1 : Grouper les sets par leur taille
         Map<Integer, List<Set<Substitution>>> sizeGroups = new HashMap<>();
         for (Set<Substitution> set : hexastoreResults) {
             int size = set.size();
             sizeGroups.computeIfAbsent(size, k -> new ArrayList<>()).add(set);
         }
+
+        System.out.println("[INFO] Il y a "+sizeGroups.get(0).size()+" requêtes à 0 réponses.");
 
         // Étape 2 : Calculer la taille cible pour chaque groupe
         int totalSets = hexastoreResults.size();
@@ -98,21 +118,31 @@ public class QueryBenchmark {
 
         // Étape 3 : Ajuster la liste pour avoir des groupes avec environ la même taille
         List<Set<Substitution>> result = new ArrayList<>();
+        List<StarQuery> updatedStarQueries = new ArrayList<>();
 
         for (Map.Entry<Integer, List<Set<Substitution>>> entry : groupList) {
             List<Set<Substitution>> setsOfThisSize = entry.getValue();
             int currentSize = setsOfThisSize.size();
 
             // Calculer le nombre de sets à garder pour ce groupe
-            int setsToKeep = Math.min(currentSize, (targetSetsPerGroup / 10) * 10);
+            int setsToKeep = Math.min(currentSize, (targetSetsPerGroup / 10));
 
             // Ajouter les sets sélectionnés à la liste résultat
-            result.addAll(setsOfThisSize.subList(0, setsToKeep));
+            for (int i = 0; i < setsToKeep; i++) {
+                result.add(setsOfThisSize.get(i));
+                // Ajouter l'élément correspondant dans starQueries à la liste mise à jour
+                updatedStarQueries.add(starQueries.get(hexastoreResults.indexOf(setsOfThisSize.get(i))));
+            }
         }
+
+        // Mettre à jour la liste starQueries pour refléter les changements
+        starQueries.clear();
+        starQueries.addAll(updatedStarQueries);
 
         // Retourner la liste uniformisée
         return result;
     }
+
 
     /**
      * Compte le nombre de sous-ensembles dans un ensemble de résultats selon leur taille.
@@ -165,11 +195,12 @@ public class QueryBenchmark {
                 starQueries.add(starQuery);
             }
         }
+        System.out.println("[INFO] Il y a "+starQueries.size()+" requêtes en étoile soit "+(starQueries.size()/queries.size())*100.0+"% des requêtes.");
         return starQueries;
     }
 
     public static void main(String[] args) throws IOException {
-        new QueryBenchmark("merged_1M.queryset","500K.nt");
+        new QueryBenchmark("merged.queryset","500K.nt");
     }
 
 }
