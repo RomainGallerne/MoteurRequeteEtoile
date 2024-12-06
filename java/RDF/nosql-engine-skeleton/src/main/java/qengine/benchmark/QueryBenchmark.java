@@ -218,7 +218,7 @@ public class QueryBenchmark {
                     new QueryBenchmark(args[0],args[1], false);
                 }
             } else{
-                System.out.println("toto");
+                System.out.println("FIchiers mal formattés");
             }
         }
 
