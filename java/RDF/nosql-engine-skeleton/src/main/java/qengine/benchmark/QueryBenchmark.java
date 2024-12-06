@@ -204,8 +204,6 @@ public class QueryBenchmark {
         // args[0] = FILE_PATH
         // args[1] = DATA_PATH
 
-        System.out.println(args[0]);
-        System.out.println(args[1]);
         if(args.length < 2) {
             System.out.println("Merci de fournir au moins deux argmuments:");
             System.out.println("1 - Le chemin vers le fichier des query");
