@@ -13,12 +13,11 @@ import java.util.*;
 import static main.java.qengine.program.Utils.*;
 
 public class QueryBenchmark {
-    private static final String WORKING_DIR = "java/RDF/nosql-engine-skeleton/data/";
     private static final RDFHexaStore hexastore = new RDFHexaStore();
 
-    public QueryBenchmark(String FILE_PATH, String DATA_PATH) throws IOException {
-        String QUERY_FILE = WORKING_DIR + FILE_PATH;
-        String DATA_FILE = WORKING_DIR + DATA_PATH;
+    public QueryBenchmark(String FILE_PATH, String DATA_PATH, boolean uniformisation) throws IOException {
+        String QUERY_FILE = FILE_PATH;
+        String DATA_FILE = DATA_PATH;
 
         // Parsing Data
         List<RDFAtom> rdf_data = parseRDFData(DATA_FILE);
@@ -34,9 +33,11 @@ public class QueryBenchmark {
         // Exécuter les requêtes
         List<Set<Substitution>> hexastoreResults = executeWithIntegraal(rdf_data, starQueries, false);
 
-        // Uniformisation des résultats
-        hexastoreResults = uniformizeList(starQueries, hexastoreResults);
-        System.out.println("[INFO] Taille après uniformisation du nombre de résultats : " + starQueries.size());
+        if(uniformisation) {
+            // Uniformisation des résultats
+            hexastoreResults = uniformizeList(starQueries, hexastoreResults);
+            System.out.println("[INFO] Taille après uniformisation du nombre de résultats : " + starQueries.size());
+        }
 
         Map<Integer, Integer> subSetSizes = countSubsetSizes(hexastoreResults);
 
@@ -200,7 +201,30 @@ public class QueryBenchmark {
     }
 
     public static void main(String[] args) throws IOException {
-        new QueryBenchmark("merged.queryset","500K.nt");
+        // args[0] = FILE_PATH
+        // args[1] = DATA_PATH
+
+        System.out.println(args[0]);
+        System.out.println(args[1]);
+        if(args.length < 2) {
+            System.out.println("Merci de fournir au moins deux argmuments:");
+            System.out.println("1 - Le chemin vers le fichier des query");
+            System.out.println("2 - Le chemin vers le fichier des data");
+        } else {
+            if(args[0].contains(".queryset") && args[1].contains(".nt")) {
+                if(args.length > 2) {
+                    if(args[2].equals("true")) {
+                        new QueryBenchmark(args[0],args[1], true);
+                    }
+                } else {
+                    new QueryBenchmark(args[0],args[1], false);
+                }
+            } else{
+                System.out.println("toto");
+            }
+        }
+
+        // new QueryBenchmark("merged_1M.queryset","500K.nt");
     }
 
 }
