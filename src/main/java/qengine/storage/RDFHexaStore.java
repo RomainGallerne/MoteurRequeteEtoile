@@ -5,9 +5,10 @@ import fr.boreal.model.logicalElements.api.Substitution;
 import fr.boreal.model.logicalElements.api.Term;
 import fr.boreal.model.logicalElements.api.Variable;
 import fr.boreal.model.logicalElements.impl.SubstitutionImpl;
-import qengine.exceptions.KeyNotFoundException;
-import qengine.exceptions.ValueNotFoundException;
-import qengine.model.*;
+import main.java.qengine.exceptions.KeyNotFoundException;
+import main.java.qengine.exceptions.ValueNotFoundException;
+import main.java.qengine.model.RDFAtom;
+import main.java.qengine.model.StarQuery;
 
 import java.util.*;
 import java.util.stream.Collectors;

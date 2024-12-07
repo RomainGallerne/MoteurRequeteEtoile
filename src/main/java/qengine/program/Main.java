@@ -4,18 +4,19 @@ import fr.boreal.model.logicalElements.api.Substitution;
 import fr.boreal.model.logicalElements.api.Variable;
 import fr.boreal.model.logicalElements.factory.api.TermFactory;
 import fr.boreal.model.logicalElements.factory.impl.SameObjectTermFactory;
-import qengine.exceptions.KeyNotFoundException;
-import qengine.model.*;
-import qengine.storage.RDFHexaStore;
+import main.java.qengine.exceptions.KeyNotFoundException;
+import main.java.qengine.model.RDFAtom;
+import main.java.qengine.model.StarQuery;
+import main.java.qengine.storage.RDFHexaStore;
 
 import java.io.IOException;
 import java.util.*;
 
-import static qengine.program.Utils.*;
+import static main.java.qengine.program.Utils.*;
 
 public final class Main {
 
-	private static final String WORKING_DIR = "data/";
+	private static final String WORKING_DIR = "java/RDF/nosql-engine-skeleton/data/";
 	private static final String SAMPLE_DATA_FILE = WORKING_DIR + "100K.nt";
 	private static final String SAMPLE_QUERY_FILE = WORKING_DIR + "STAR_ALL_workload.queryset";
 	private static final RDFHexaStore hexastore = new RDFHexaStore();
