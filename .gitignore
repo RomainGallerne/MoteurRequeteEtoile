@@ -1,5 +1,6 @@
 RDF/nosql-engine-skeleton/target/
 target
+target/
 htmlReport
 *.iml
 *.xml
