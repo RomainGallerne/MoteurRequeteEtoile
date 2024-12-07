@@ -52,6 +52,10 @@ find "$QUERY_DIR" -type f -name "*.queryset" | shuf | while read -r file; do
     echo "# Début de $file" >> "$MERGED_FILE"
   fi
   cat "$file" >> "$MERGED_FILE"
+<<<<<<< HEAD:java/RDF/nosql-engine-skeleton/scripts/merge_and_shuffle.sh
+=======
+  echo "" >> "$MERGED_FILE"  # Ajouter un saut de ligne après chaque fichier
+>>>>>>> 577f843 (fork: forking remote teacher project):watdiv-mini-projet-partie-2/merge_and_shuffle.sh
   if $VERBOSE; then
     echo -e "\n# Fin de $file\n" >> "$MERGED_FILE"
   fi

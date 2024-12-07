@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Default ignored files
 /shelf/
 /workspace.xml
@@ -6,3 +7,12 @@
 # Datasource local storage ignored files
 /dataSources/
 /dataSources.local.xml
+=======
+RDF/nosql-engine-skeleton/target/
+target
+htmlReport
+*.iml
+*.xml
+500K.nt
+2M.nt
+>>>>>>> 577f843 (fork: forking remote teacher project)

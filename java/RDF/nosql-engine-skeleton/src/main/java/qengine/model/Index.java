@@ -1,10 +1,17 @@
+<<<<<<< HEAD:java/RDF/nosql-engine-skeleton/src/main/java/qengine/model/Index.java
 package main.java.qengine.model;
+=======
+package qengine.model;
+>>>>>>> 577f843 (fork: forking remote teacher project):src/main/java/qengine/model/Index.java
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+<<<<<<< HEAD:java/RDF/nosql-engine-skeleton/src/main/java/qengine/model/Index.java
 import static java.lang.System.exit;
 
+=======
+>>>>>>> 577f843 (fork: forking remote teacher project):src/main/java/qengine/model/Index.java
 public class Index {
     private final Map<Integer, Map<Integer, List<Integer>>> index;
 

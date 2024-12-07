@@ -30,7 +30,7 @@
 				<configuration>
 					<archive>
 						<manifest>
-							<mainClass>qengine.program.Example</mainClass>
+							<mainClass>qengine.benchmark.QueryBenchmark</mainClass>
 						</manifest>
 					</archive>
 				</configuration>
@@ -42,7 +42,7 @@
 				<configuration>
 					<archive>
 						<manifest>
-							<mainClass>qengine.program.Example</mainClass>
+							<mainClass>qengine.benchmark.QueryBenchmark</mainClass>
 						</manifest>
 					</archive>
 					<descriptorRefs>
