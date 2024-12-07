@@ -2,15 +2,15 @@ package qengine.benchmark;
 
 import fr.boreal.model.logicalElements.api.Substitution;
 import fr.boreal.model.query.api.Query;
-import main.java.qengine.model.RDFAtom;
-import main.java.qengine.model.StarQuery;
-import main.java.qengine.storage.RDFHexaStore;
+import qengine.model.RDFAtom;
+import qengine.model.StarQuery;
+import qengine.storage.RDFHexaStore;
 
 import javax.swing.*;
 import java.io.IOException;
 import java.util.*;
 
-import static main.java.qengine.program.Utils.*;
+import static qengine.program.Utils.*;
 
 public class QueryBenchmark {
     private static final RDFHexaStore hexastore = new RDFHexaStore();

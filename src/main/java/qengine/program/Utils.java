@@ -9,11 +9,11 @@ import fr.boreal.model.query.api.Query;
 import fr.boreal.model.queryEvaluation.api.FOQueryEvaluator;
 import fr.boreal.query_evaluation.generic.GenericFOQueryEvaluator;
 import fr.boreal.storage.natives.SimpleInMemoryGraphStore;
-import main.java.qengine.model.RDFAtom;
-import main.java.qengine.model.StarQuery;
-import main.java.qengine.parser.RDFAtomParser;
-import main.java.qengine.parser.StarQuerySparQLParser;
-import main.java.qengine.storage.RDFHexaStore;
+import qengine.model.RDFAtom;
+import qengine.model.StarQuery;
+import qengine.parser.RDFAtomParser;
+import qengine.parser.StarQuerySparQLParser;
+import qengine.storage.RDFHexaStore;
 import org.eclipse.rdf4j.rio.RDFFormat;
 
 import java.io.FileReader;

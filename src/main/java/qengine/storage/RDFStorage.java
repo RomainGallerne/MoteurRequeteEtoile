@@ -2,8 +2,8 @@ package qengine.storage;
 
 import fr.boreal.model.logicalElements.api.Atom;
 import fr.boreal.model.logicalElements.api.Substitution;
-import main.java.qengine.model.RDFAtom;
-import main.java.qengine.model.StarQuery;
+import qengine.model.RDFAtom;
+import qengine.model.StarQuery;
 
 import java.util.Collection;
 import java.util.Iterator;

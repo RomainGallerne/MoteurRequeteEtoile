@@ -1,11 +1,12 @@
+package qengine.model;
+
 import fr.boreal.model.logicalElements.api.Term;
-import main.java.qengine.exceptions.ValueNotFoundException;
+import qengine.exceptions.ValueNotFoundException;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
->>>>>>> 577f843 (fork: forking remote teacher project):src/main/java/qengine/model/Dictionnary.java
 
 public class Dictionnary {
     private LinkedHashMap<Term, Integer> dictionary = new LinkedHashMap<>();

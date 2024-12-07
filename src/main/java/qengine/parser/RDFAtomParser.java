@@ -6,7 +6,7 @@ import fr.boreal.io.rdf.RDFTranslationMode;
 import fr.boreal.model.logicalElements.api.Atom;
 import fr.boreal.model.logicalElements.api.Predicate;
 import fr.boreal.model.logicalElements.factory.impl.SameObjectPredicateFactory;
-import main.java.qengine.model.RDFAtom;
+import qengine.model.RDFAtom;
 import org.eclipse.rdf4j.rio.RDFFormat;
 
 import java.io.File;

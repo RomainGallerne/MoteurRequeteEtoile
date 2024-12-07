@@ -1,8 +1,8 @@
+package qengine.model;
+
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-=======
->>>>>>> 577f843 (fork: forking remote teacher project):src/main/java/qengine/model/Index.java
 public class Index {
     private final Map<Integer, Map<Integer, List<Integer>>> index;
 
