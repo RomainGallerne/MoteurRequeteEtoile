@@ -1,4 +1,4 @@
-Plan Expe :
+# Plan Expe :
 
 - Une nouvelle JVM par expe
 - Chauffer la JVM avec 20% des requêtes
@@ -7,8 +7,17 @@ Plan Expe :
 - Tps de réponse (utilisateur et réel)
 - Tester sur plusieurs hardwares
 
+-----------------------------------------------------------------
 
-Infos Hardware: 
+ - Commande pour créer le JAR: `mvn clean install`
+
+NB: Le Jar utilisable est celui avec la mention "jar-with-dependencies"
+
+Il se trouve dans le dossier target
+
+-----------------------------------------------------------------
+
+# Infos Hardware: 
 
  - Commande pour connaitre ses infos: `sudo lshw -short`
 
