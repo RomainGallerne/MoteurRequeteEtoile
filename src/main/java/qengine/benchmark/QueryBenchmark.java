@@ -1,4 +1,4 @@
-package main.java.qengine.benchmark;
+package qengine.benchmark;
 
 import fr.boreal.model.logicalElements.api.Substitution;
 import fr.boreal.model.query.api.Query;
