@@ -1,6 +1,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>napd</groupId>
 	<artifactId>qengine</artifactId>
@@ -10,12 +10,13 @@
 		<junit-version>4.13.2</junit-version>
 		<junit-jupiter-version>5.10.2</junit-jupiter-version>
 		<mockito-version>5.3.1</mockito-version>
+		<maven.build.timestamp.format>yyyy-MM-dd</maven.build.timestamp.format>
 	</properties>
 
 	<build>
 		<sourceDirectory>src</sourceDirectory>
 		<plugins>
-
+			<!-- Plugin Compiler -->
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.8.1</version>
@@ -25,6 +26,7 @@
 				</configuration>
 			</plugin>
 
+			<!-- Plugin JAR -->
 			<plugin>
 				<artifactId>maven-jar-plugin</artifactId>
 				<configuration>
@@ -36,6 +38,7 @@
 				</configuration>
 			</plugin>
 
+			<!-- Plugin Maven Assembly -->
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
 				<version>3.1.0</version>
@@ -60,29 +63,30 @@
 				</executions>
 			</plugin>
 
+			<!-- Plugin Exec pour exécuter un script -->
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-dependency-plugin</artifactId>
-				<version>3.2.0</version>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin</artifactId>
+				<version>3.1.0</version>
 				<executions>
 					<execution>
-						<id>copy-dependencies</id>
-						<phase>prepare-package</phase>
+						<id>copy-and-rename-jar</id>
+						<phase>install</phase>
 						<goals>
-							<goal>copy-dependencies</goal>
+							<goal>exec</goal>
 						</goals>
 						<configuration>
-							<outputDirectory>${project.build.directory}/allJars</outputDirectory>
-							<overWriteReleases>false</overWriteReleases>
-							<overWriteSnapshots>false</overWriteSnapshots>
-							<overWriteIfNewer>true</overWriteIfNewer>
+							<executable>sh</executable> <!-- Ou cmd sous Windows -->
+							<arguments>
+								<argument>-c</argument>
+								<argument>cp target/qengine-0.0.1-SNAPSHOT-jar-with-dependencies.jar ./qengine_RGRPO.jar</argument>
+							</arguments>
 						</configuration>
 					</execution>
 				</executions>
 			</plugin>
 		</plugins>
 	</build>
-
 
 	<dependencyManagement>
 		<dependencies>
@@ -101,7 +105,6 @@
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
-
 
 	<dependencies>
 		<!-- Integraal -->
@@ -197,6 +200,5 @@
 		</dependency>
 
 	</dependencies>
-
 
 </project>
