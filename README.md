@@ -41,6 +41,10 @@ Il se trouve dans le dossier target
 java -Xms512m -Xmx2g -jar qengine_RGRPO.jar
 ```
 
+```bash
+java -jar target/qengine-0.0.1-SNAPSHOT-jar-with-dependencies.jar /home/richard/Bureau/test/MoteurRequeteEtoile/java/RDF/nosql-engine-skeleton/data/merged.queryset /home/richard/Bureau/test/MoteurRequeteEtoile/java/RDF/nosql-engine-skeleton/data/sample_data.nt
+```
+
 -----------------------------------------------------------------
 
 # Infos Hardware: 
