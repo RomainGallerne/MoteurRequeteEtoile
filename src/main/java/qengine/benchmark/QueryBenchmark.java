@@ -1,10 +1,12 @@
-package qengine.benchmark;
+package main.java.qengine.benchmark;
 
 import fr.boreal.model.logicalElements.api.Substitution;
 import fr.boreal.model.query.api.Query;
 import qengine.model.RDFAtom;
 import qengine.model.StarQuery;
 import qengine.storage.RDFHexaStore;
+import qengine.benchmark.HistogramFrame;
+import qengine.benchmark.ExecutionTimer;
 
 import javax.swing.*;
 import java.io.IOException;
@@ -39,15 +41,15 @@ public class QueryBenchmark {
             System.out.println("[INFO] Taille après uniformisation du nombre de résultats : " + starQueries.size());
         }
 
+        runBenchmark_hexastore(starQueries);
+        runBenchmark_integraal(starQueries, rdf_data);
+
         Map<Integer, Integer> subSetSizes = countSubsetSizes(hexastoreResults);
 
         SwingUtilities.invokeLater(() -> {
             HistogramFrame frame = new HistogramFrame(subSetSizes);
             frame.setVisible(true);
         });
-
-        runBenchmark_hexastore(starQueries);
-        runBenchmark_integraal(starQueries, rdf_data);
     }
 
     private void runBenchmark_hexastore(List<StarQuery> starQueries){
