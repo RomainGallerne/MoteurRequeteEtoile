@@ -27,6 +27,5 @@ Il se trouve dans le dossier target
     - GeForce RTX 4050
 
 ## Romain:
-    -
-    -
-    -
+    - 16GiB RAM
+    - Intel(R) Core(TM) Ultra 5 135H
