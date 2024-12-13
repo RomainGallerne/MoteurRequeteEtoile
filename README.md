@@ -53,6 +53,5 @@ java -Xms512m -Xmx2g -jar qengine_RGRPO.jar
     - GeForce RTX 4050
 
 ## Romain:
-    -
-    -
-    -
+    - 16GiB RAM
+    - Intel(R) Core(TM) Ultra 5 135H
