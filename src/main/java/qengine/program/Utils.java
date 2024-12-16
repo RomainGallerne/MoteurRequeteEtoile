@@ -51,7 +51,7 @@ public class Utils {
      * @param queryFilePath Chemin vers le fichier de requêtes SparQL
      * @return Liste des StarQueries parsées
      */
-    public static List<StarQuery> parseStarQueries(String queryFilePath) throws IOException {
+    public static List<StarQuery> parseStarQueries(String queryFilePath) {
         List<StarQuery> starQueries = new ArrayList<>();
 
         Query query = null;
@@ -71,30 +71,6 @@ public class Utils {
             System.out.println(query);
         }
         return starQueries;
-    }
-
-    /**
-     * Parse et affiche le contenu d'un fichier de requêtes SparQL.
-     *
-     * @param queryFilePath Chemin vers le fichier de requêtes SparQL
-     * @return Liste des Queries parsées
-     */
-    public static List<Query> parseQueries(String queryFilePath) throws IOException {
-        List<Query> queries = new ArrayList<>();
-
-        Query query = null;
-        try (StarQuerySparQLParser queryParser = new StarQuerySparQLParser(queryFilePath)) {
-
-            while (queryParser.hasNext()) {
-                query = queryParser.next();
-                queries.add(query);  // Stocker la requête dans la collection
-            }
-            System.out.println("[INFO] Total Queries parsed: " + queries.size());
-        } catch (Exception e) {
-            System.out.println("[ERREUR] Requête invalide");
-            System.out.println(query);
-        }
-        return queries;
     }
 
     /**
@@ -149,7 +125,6 @@ public class Utils {
     /**
      * Exécute une série de requêtes (StarQuery) sur une base RDF (Hexastore),
      * et retourne les résultats sous forme de substitutions.
-     *
      * Cette méthode interroge un 'RDFHexaStore'
      * pour trouver les correspondances pour chaque requête spécifiée.
      *
@@ -162,19 +137,19 @@ public class Utils {
      *         d'une requête dans `starQueries`.
      */
     public static List<Set<Substitution>> executeWithHexastore(List<StarQuery> starQueries, RDFHexaStore hexastore, boolean verbose) {
-        List<Set<Substitution>> results = new ArrayList<>();
+        List<Set<Substitution>> results = new ArrayList<>(starQueries.size());
 
         for (StarQuery starQuery : starQueries) {
-            if(verbose){System.out.println("Star Query: " + starQuery + "\n");}
+            if (verbose) System.out.println("Star Query: " + starQuery + "\n");
 
-            // Trouver les correspondances
-            Set<Substitution> matches = new HashSet<>();
+            Set<Substitution> matches = new HashSet<>(16, 0.75f); // Ajuster selon les besoins
             hexastore.match(starQuery).forEachRemaining(matches::add);
             results.add(matches);
 
-            // Afficher les résultats
-            if(verbose){matches.forEach(System.out::println);}
-            if(verbose){System.out.println("------------\n");}
+            if (verbose) {
+                matches.forEach(System.out::println);
+                System.out.println("------------\n");
+            }
         }
         return results;
     }

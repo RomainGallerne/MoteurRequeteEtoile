@@ -2,7 +2,7 @@
 		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>napd</groupId>
+	<groupId>qengine</groupId>
 	<artifactId>qengine</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 
@@ -32,7 +32,7 @@
 				<configuration>
 					<archive>
 						<manifest>
-							<mainClass>qengine.benchmark.QueryBenchmark</mainClass>
+							<mainClass>qengine.benchmark.Main</mainClass>
 						</manifest>
 					</archive>
 				</configuration>
@@ -45,7 +45,7 @@
 				<configuration>
 					<archive>
 						<manifest>
-							<mainClass>qengine.benchmark.QueryBenchmark</mainClass>
+							<mainClass>qengine.benchmark.Main</mainClass>
 						</manifest>
 					</archive>
 					<descriptorRefs>

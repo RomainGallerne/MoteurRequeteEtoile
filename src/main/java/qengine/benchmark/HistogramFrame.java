@@ -3,6 +3,7 @@ package qengine.benchmark;
 import javax.swing.*;
 import java.awt.*;
 import java.util.Map;
+import java.util.TreeMap;
 
 public class HistogramFrame extends JFrame {
 
@@ -38,44 +39,28 @@ public class HistogramFrame extends JFrame {
         int width = getWidth() - 2 * padding;
         int height = getHeight() - 2 * padding;
 
-        // Obtenir les valeurs maximales pour normaliser les données
-        int maxKey = data.keySet().stream().max(Integer::compare).orElse(1);
         int maxValue = data.values().stream().max(Integer::compare).orElse(1);
+        Map<Integer, Integer> sortedData = new TreeMap<>(data);
 
-        // Taille des barres
         int barWidth = width / data.size();
         int startX = padding; // Position initiale pour les barres
 
-        // Dessiner les axes X et Y
         g.setColor(Color.BLACK);
-        // Axe Y
         g.drawLine(padding, padding, padding, height + padding);
-        // Axe X
         g.drawLine(padding, height + padding, getWidth() - padding, height + padding);
 
-        // Dessiner les barres
-        for (Map.Entry<Integer, Integer> entry : data.entrySet()) {
+        for (Map.Entry<Integer, Integer> entry : sortedData.entrySet()) {
             int key = entry.getKey();
             int value = entry.getValue();
-
-            // Calculer la hauteur de la barre (normalisée)
             int barHeight = (int) ((double) value / maxValue * height);
-
-            // Position Y de la barre
             int topBarY = height + padding - barHeight;
 
-            // Dessiner la barre
             g.setColor(Color.BLUE);
             g.fillRect(startX, topBarY, barWidth - 5, barHeight);
-
-            // Ajouter des étiquettes
             g.setColor(Color.BLACK);
-            // Clé (taille) sous la barre
             g.drawString(String.valueOf(key), startX, height + padding + 20);
-            // Valeur (nombre) au-dessus de la barre
             g.drawString(String.valueOf(value), startX, topBarY - 5);
 
-            // Avancer la position X
             startX += barWidth;
         }
     }

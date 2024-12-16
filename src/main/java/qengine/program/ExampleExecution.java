@@ -4,7 +4,6 @@ import fr.boreal.model.logicalElements.api.Substitution;
 import fr.boreal.model.logicalElements.api.Variable;
 import fr.boreal.model.logicalElements.factory.api.TermFactory;
 import fr.boreal.model.logicalElements.factory.impl.SameObjectTermFactory;
-import qengine.exceptions.KeyNotFoundException;
 import qengine.model.RDFAtom;
 import qengine.model.StarQuery;
 import qengine.storage.RDFHexaStore;
@@ -14,7 +13,7 @@ import java.util.*;
 
 import static qengine.program.Utils.*;
 
-public final class Main {
+public final class ExampleExecution {
 
 	private static final String WORKING_DIR = "data/";
 	private static final String SAMPLE_DATA_FILE = WORKING_DIR + "100K.nt";
@@ -22,7 +21,7 @@ public final class Main {
 	private static final RDFHexaStore hexastore = new RDFHexaStore();
 
 
-	public static void main(String[] args) throws IOException, KeyNotFoundException {
+	public static void main(String[] args) throws IOException {
 		System.out.println("\n=== Parsing RDF Data ===\n");
 		List<RDFAtom> rdfAtoms = parseRDFData(SAMPLE_DATA_FILE);
 
@@ -34,16 +33,8 @@ public final class Main {
 		System.out.println("Done.");
 
 		System.out.println("\n=== Building Indexes ===");
-		int rdfAtoms_size = rdfAtoms.size();
-		for (int i=0; i < rdfAtoms_size; i++){
-			hexastore.add(rdfAtoms.get(i));
-			if(i%1000==0){
-				System.out.print("█");
-				//System.out.print(Integer.toString((int)((float)i/(float)rdfAtoms_size * 100.0)) + "% -> ");
-			}
-
-		}
-		System.out.println("\nDone.");
+		hexastore.addAll(rdfAtoms, false);
+		System.out.println("Done.");
 
 		System.out.println("\n=== Match Atom ===");
 		TermFactory termFactory = SameObjectTermFactory.instance();
@@ -54,14 +45,9 @@ public final class Main {
 		RDFAtom first_atom = rdfAtoms.getFirst();
 
 		RDFAtom match_object = new RDFAtom(first_atom.getTripleSubject(), first_atom.getTriplePredicate(), var1);
-//		RDFAtom match_predicate = new RDFAtom(first_atom.getTripleSubject(), var1, first_atom.getTripleObject());
 		RDFAtom match_subject = new RDFAtom(var1, first_atom.getTriplePredicate(), first_atom.getTripleObject());
 
-//		RDFAtom match_predicate_object = new RDFAtom(first_atom.getTripleSubject(), var1, var2);
-//		RDFAtom match_subject_predicate = new RDFAtom(var1, var2, first_atom.getTripleObject());
-//		RDFAtom match_subject_object = new RDFAtom(var1, first_atom.getTriplePredicate(), var2);
-
-		System.out.println("Atome de base : " + first_atom);
+        System.out.println("Atome de base : " + first_atom);
 		System.out.println("Atome encodé : " + Arrays.toString(hexastore.dico_encodeTriplet(first_atom)) + "\n");
 
 		System.out.println("Match object : " + first_atom);
@@ -78,12 +64,6 @@ public final class Main {
 		match_result = hexastore.match(match_subject);
 		while(match_result.hasNext()){System.out.println(match_result.next());}
 		System.out.print("------------\n");
-
-//		System.out.println("Match object : " + match_predicate_object.toString());
-//		match_result = hexastore.match(match_predicate_object);
-//		while(match_result.hasNext()){System.out.println(match_result.next());}
-//		System.out.println("------------");
-
 
 		System.out.println("\n=== Parsing Sample Queries ===\n");
 		List<StarQuery> starQueries = parseStarQueries(SAMPLE_QUERY_FILE);

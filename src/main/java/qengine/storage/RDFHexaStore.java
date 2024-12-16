@@ -5,7 +5,8 @@ import fr.boreal.model.logicalElements.api.Substitution;
 import fr.boreal.model.logicalElements.api.Term;
 import fr.boreal.model.logicalElements.api.Variable;
 import fr.boreal.model.logicalElements.impl.SubstitutionImpl;
-import qengine.exceptions.KeyNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import qengine.exceptions.ValueNotFoundException;
 import qengine.model.Dictionnary;
 import qengine.model.Index;
@@ -13,7 +14,6 @@ import qengine.model.RDFAtom;
 import qengine.model.StarQuery;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Implémentation d'un HexaStore pour stocker des RDFAtom.
@@ -22,15 +22,16 @@ import java.util.stream.Collectors;
  * (Prédicat, Sujet, Objet), (Prédicat, Objet, Sujet), (Objet, Sujet, Prédicat) et (Objet, Prédicat, Sujet).
  */
 public class RDFHexaStore implements RDFStorage {
-    private Dictionnary dictionnary = new Dictionnary();
-    private Set<RDFAtom> rdfAtoms = new HashSet<>();
-
-    private Index OPS;
-    private Index OSP;
-    private Index POS;
-    private Index PSO;
-    private Index SOP;
-    private Index SPO;
+    private static final Logger log = LoggerFactory.getLogger(RDFHexaStore.class);
+    private final Dictionnary dictionnary = new Dictionnary();
+    private final Set<RDFAtom> rdfAtoms = new HashSet<>();
+    private final Index OPS;
+    private final Index OSP;
+    private final Index POS;
+    private final Index PSO;
+    private final Index SOP;
+    private final Index SPO;
+    private final Map<String, Index> permutationMap;
 
     public RDFHexaStore() {
         this.OPS = new Index();
@@ -39,6 +40,14 @@ public class RDFHexaStore implements RDFStorage {
         this.PSO = new Index();
         this.SOP = new Index();
         this.SPO = new Index();
+
+        this.permutationMap = Map.of(
+                "OPS", this.OPS,
+                "OSP", this.OSP,
+                "POS", this.POS,
+                "PSO", this.PSO,
+                "SOP", this.SOP
+        );
     }
 
     // Effectue les permutations nécessaires pour constuire l'index.
@@ -83,30 +92,55 @@ public class RDFHexaStore implements RDFStorage {
         int[] atomEncoder = dico_encodeTriplet(atom);
 
         for (int i = 0; i < atomEncoder.length; i++) {
-            if (atomEncoder[i] == -1){
-                try {
-                    throw new KeyNotFoundException(atom.getTerm(i));
-                } catch (KeyNotFoundException e) {
-                    throw new RuntimeException(e);
-                }
+            if (atomEncoder[i] == -1) {
+                throw new RuntimeException("Key not found: " + atom.getTerm(i));
             }
         }
 
+        for (Map.Entry<String, Index> entry : permutationMap.entrySet()) {
+            entry.getValue().ajoutTriplet(permuteTriplet(atomEncoder, entry.getKey()));
+        }
 
-        Map<String, Index> permutationMap = Map.of(
-                "OPS", this.OPS,
-                "OSP", this.OSP,
-                "POS", this.POS,
-                "PSO", this.PSO,
-                "SOP", this.SOP
-        );
-
-        permutationMap.forEach((key, hexastore) ->
-                hexastore.ajoutTriplet(permuteTriplet(atomEncoder, key))
-        );
         this.SPO.ajoutTriplet(atomEncoder);
-
         return true;
+    }
+
+    /**
+     * Ajoute une List<RDFAtom> dans le store.
+     *
+     * @param atoms une List<RDFAtom> à ajouter
+     */
+    public void addAll(List<RDFAtom> atoms, boolean SPO_Only) {
+        List<int[]> encodedAtoms = new ArrayList<>();
+        List<RDFAtom> validAtoms = new ArrayList<>();
+
+        for (RDFAtom atom : atoms) {
+            if (rdfAtoms.contains(atom)) continue;
+
+            int[] atomEncoder = dico_encodeTriplet(atom);
+            boolean isValid = true;
+            for (int j : atomEncoder) {
+                if (j == -1) {
+                    isValid = false;
+                    break;
+                }
+            }
+
+            if (isValid) {
+                validAtoms.add(atom);
+                encodedAtoms.add(atomEncoder);
+            }
+        }
+        rdfAtoms.addAll(validAtoms);
+
+        for (int[] atomEncoder : encodedAtoms) {
+            if(!SPO_Only){
+                for (Map.Entry<String, Index> entry : permutationMap.entrySet()) {
+                    entry.getValue().ajoutTriplet(permuteTriplet(atomEncoder, entry.getKey()));
+                }
+            }
+            this.SPO.ajoutTriplet(atomEncoder);
+        }
     }
 
     /**
@@ -152,7 +186,6 @@ public class RDFHexaStore implements RDFStorage {
         }
 
         List<int[]> results = new ArrayList<>();
-        List<int[]> ordered_results = new ArrayList<>();
 
         if (s_var && p_var && o_var) {
             //SPO
@@ -220,23 +253,36 @@ public class RDFHexaStore implements RDFStorage {
         Set<Substitution> currentMatches = new HashSet<>();
         matchingAtoms.forEachRemaining(currentMatches::add);
 
+        if (currentMatches.isEmpty()) {
+            return Collections.emptyIterator();
+        }
+
         for (int i = 1; i < rdfAtoms.size(); i++) {
             RDFAtom rdfAtom = rdfAtoms.get(i);
             Iterator<Substitution> matchResult = match(rdfAtom);
 
-            Set<Substitution> nextMatches = new HashSet<>();
-            matchResult.forEachRemaining(nextMatches::add);
-            currentMatches.retainAll(nextMatches);
+            Set<Substitution> tempMatches = new HashSet<>();
+            Set<Substitution> finalCurrentMatches = currentMatches;
+            matchResult.forEachRemaining(substitution -> {
+                if (finalCurrentMatches.contains(substitution)) {
+                    tempMatches.add(substitution);
+                }
+            });
+
+            currentMatches = tempMatches;
 
             if (currentMatches.isEmpty()) {
                 return Collections.emptyIterator();
             }
         }
+
         return currentMatches.iterator();
     }
 
+
+
     @Override
     public Collection<Atom> getAtoms() {
-        return rdfAtoms.stream().collect(Collectors.toSet());
+        return new HashSet<>(rdfAtoms);
     }
 }

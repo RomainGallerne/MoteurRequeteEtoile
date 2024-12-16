@@ -1,12 +1,9 @@
 package qengine.benchmark;
 
 import fr.boreal.model.logicalElements.api.Substitution;
-import fr.boreal.model.query.api.Query;
 import qengine.model.RDFAtom;
 import qengine.model.StarQuery;
 import qengine.storage.RDFHexaStore;
-import qengine.benchmark.HistogramFrame;
-import qengine.benchmark.ExecutionTimer;
 
 import javax.swing.*;
 import java.io.IOException;
@@ -14,71 +11,92 @@ import java.util.*;
 
 import static qengine.program.Utils.*;
 
-public class QueryBenchmark {
+public class Main {
     private static final RDFHexaStore hexastore = new RDFHexaStore();
 
-    public QueryBenchmark(String FILE_PATH, String DATA_PATH, boolean uniformisation) throws IOException {
-        String QUERY_FILE = FILE_PATH;
-        String DATA_FILE = DATA_PATH;
-
+    public Main(String FILE_PATH, String DATA_PATH, boolean uniformisation) throws IOException {
         // Parsing Data
-        List<RDFAtom> rdf_data = parseRDFData(DATA_FILE);
+        List<RDFAtom> rdf_data = parseRDFData(DATA_PATH);
         buildIndexesAndDictionary(rdf_data);
 
         // Parsing Queries
-        List<Query> queries = filterDuplicates(parseQueries(QUERY_FILE));
-        System.out.println("[INFO] Taille après doublons supprimés : " + queries.size());
-
-        List<StarQuery> starQueries = StarQueryExtractor(queries);
-        System.out.println("[INFO] Taille après extraction des starQueries : " + starQueries.size());
+        List<StarQuery> starQueries = parseStarQueries(FILE_PATH);
+        System.out.println("[INFO] Requêtes parsés.");
+        starQueries= filterDuplicates(starQueries);
+        System.out.println("[INFO] Taille après doublons supprimés : " + starQueries.size());
 
         // Exécuter les requêtes
-        List<Set<Substitution>> hexastoreResults = executeWithIntegraal(rdf_data, starQueries, false);
+        List<Set<Substitution>> integraalResults = executeWithIntegraal(rdf_data, starQueries, false);
+        System.out.println("[INFO] Comptage du nombre de réponse par requêtes terminé.");
 
         if(uniformisation) {
             // Uniformisation des résultats
-            hexastoreResults = uniformizeList(starQueries, hexastoreResults);
+            integraalResults = uniformizeList(starQueries, integraalResults);
             System.out.println("[INFO] Taille après uniformisation du nombre de résultats : " + starQueries.size());
         }
 
-        runBenchmark_hexastore(starQueries);
-        runBenchmark_integraal(starQueries, rdf_data);
-
-        Map<Integer, Integer> subSetSizes = countSubsetSizes(hexastoreResults);
+        Map<Integer, Integer> subSetSizes = countSubsetSizes(integraalResults);
 
         SwingUtilities.invokeLater(() -> {
             HistogramFrame frame = new HistogramFrame(subSetSizes);
             frame.setVisible(true);
         });
+
+        //Libération d'espace
+        integraalResults = null;
+
+        Set<Set<Substitution>> integraalSet = runBenchmark_integraal(starQueries, rdf_data);
+        Set<Set<Substitution>> hexastoreSet = runBenchmark_hexastore(starQueries);
+
+        //Test de correction
+        if (integraalSet.containsAll(hexastoreSet)) {
+            System.out.println("Matching Correct ✔");
+        } else {
+            System.out.println("Matching Incorrect");
+        }
+
+        //Test de complétude
+        if (hexastoreSet.containsAll(integraalSet)) {
+            System.out.println("Matching Complet ✔");
+        } else {
+            System.out.println("Matching Incomplet");
+        }
     }
 
-    private void runBenchmark_hexastore(List<StarQuery> starQueries){
+    private Set<Set<Substitution>> runBenchmark_hexastore(List<StarQuery> starQueries){
         // Execution des 20% de requête pour chauffer la JVM
         int twentyPercentCount = (int) Math.ceil(starQueries.size() * 0.2);
         List<StarQuery> initialQueries = starQueries.subList(0, twentyPercentCount);
         List<StarQuery> remainingQueries = starQueries.subList(twentyPercentCount, starQueries.size());
 
-        List<Set<Substitution>> initialResults = executeWithHexastore(initialQueries, hexastore, false);
-
-        // Instancier le timer
         ExecutionTimer timer = new ExecutionTimer();
+        timer.start();
+        executeWithHexastore(initialQueries, hexastore, false);
+        ExecutionTimer.TimerReport report = timer.stop();
+
+        System.out.println("[INFO] 20% des requêtes ont été exécutés avec l'hexastore. ESTIMATION TEMPS RESTANT : " + ((report.getRealTime()*4.0)/1000.0)/60 + " min.");
+
+        timer = new ExecutionTimer();
         timer.start();
 
         // Execution des 80% de requêtes restantes
         List<Set<Substitution>> remainingResults = executeWithHexastore(remainingQueries, hexastore, false);
 
-        ExecutionTimer.TimerReport report = timer.stop();
-        System.out.println("[BENCHMARK HEXASTORE] : ");
+        report = timer.stop();
+
+        System.out.print("[BENCHMARK HEXASTORE] : ");
         System.out.println(report);
+
+        return new HashSet<>(remainingResults);
     }
 
-    private void runBenchmark_integraal(List<StarQuery> starQueries, List<RDFAtom> rdf_data){
+    private Set<Set<Substitution>> runBenchmark_integraal(List<StarQuery> starQueries, List<RDFAtom> rdf_data){
         // Execution des 20% de requête pour chauffer la JVM
         int twentyPercentCount = (int) Math.ceil(starQueries.size() * 0.2);
         List<StarQuery> initialQueries = starQueries.subList(0, twentyPercentCount);
         List<StarQuery> remainingQueries = starQueries.subList(twentyPercentCount, starQueries.size());
 
-        List<Set<Substitution>> initialResults = executeWithIntegraal(rdf_data, initialQueries, false);
+        executeWithIntegraal(rdf_data, initialQueries, false);
 
         // Instancier le timer
         ExecutionTimer timer = new ExecutionTimer();
@@ -90,19 +108,24 @@ public class QueryBenchmark {
         ExecutionTimer.TimerReport report = timer.stop();
         System.out.println("[BENCHMARK INTEGRAAL] : ");
         System.out.println(report);
+
+        return new HashSet<>(remainingResults);
     }
 
 
     private void buildIndexesAndDictionary(List<RDFAtom> rdf_data){
         for (RDFAtom rdfAtom : rdf_data){hexastore.add_to_dico(rdfAtom.getTerms());}
+        System.out.println("[INFO] Dictionnaire de données construit.");
         hexastore.dico_createCodex();
-        for (RDFAtom rdfData : rdf_data) {hexastore.add(rdfData);}
+        System.out.println("[INFO] Codex créé.");
+        hexastore.addAll(rdf_data, false); //Seul SPO est utilisé pour les starQuery, on ne construit donc que celui-ci
+        System.out.println("[INFO] Index de données construit.");
     }
 
     public static List<Set<Substitution>> uniformizeList(List<StarQuery> starQueries, List<Set<Substitution>> hexastoreResults) {
         // Vérification : les deux listes doivent avoir la même taille
         if (starQueries.size() != hexastoreResults.size()) {
-            throw new IllegalArgumentException("Les listes starQueries et hexastoreResults doivent avoir la même taille.");
+            throw new IllegalArgumentException("[ERROR] Les listes starQueries et hexastoreResults doivent avoir la même taille.");
         }
 
         // Étape 1 : Grouper les sets par leur taille
@@ -178,28 +201,9 @@ public class QueryBenchmark {
      *         Si la liste est null, une exception IllegalArgumentException est levée.
      * @return une nouvelle liste contenant uniquement des objets Query uniques.
      */
-    private static List<Query> filterDuplicates(List<Query> queries) {
-        Set<Query> uniqueQueries = new HashSet<>(queries);
+    private static List<StarQuery> filterDuplicates(List<StarQuery> queries) {
+        Set<StarQuery> uniqueQueries = new HashSet<>(queries);
         return new ArrayList<>(uniqueQueries);
-    }
-
-    /**
-     * Extraits les requêtes en étoile (StarQuery) d'une liste de requête (Query)
-     *
-     * @param queries la liste de Query contenant potentiellement des requêtes en étoile.
-     *
-     * @return une nouvelle liste contenant uniquement des objets StarQuery.
-     */
-    private List<StarQuery> StarQueryExtractor(List<Query> queries) {
-        List<StarQuery> starQueries = new ArrayList<>();
-
-        for (Query query : queries) {
-            if (query instanceof StarQuery starQuery) {
-                starQueries.add(starQuery);
-            }
-        }
-        System.out.println("[INFO] Il y a "+starQueries.size()+" requêtes en étoile soit "+(starQueries.size()/queries.size())*100.0+"% des requêtes.");
-        return starQueries;
     }
 
     public static void main(String[] args) throws IOException {
@@ -207,20 +211,20 @@ public class QueryBenchmark {
         // args[1] = DATA_PATH
 
         if(args.length < 2) {
-            System.out.println("Merci de fournir au moins deux argmuments:");
+            System.out.println("Merci de fournir au moins deux arguments:");
             System.out.println("1 - Le chemin vers le fichier des query");
             System.out.println("2 - Le chemin vers le fichier des data");
         } else {
             if(args[0].contains(".queryset") && args[1].contains(".nt")) {
                 if(args.length > 2) {
                     if(args[2].equals("true")) {
-                        new QueryBenchmark(args[0],args[1], true);
+                        new Main(args[0],args[1], true);
                     }
                 } else {
-                    new QueryBenchmark(args[0],args[1], false);
+                    new Main(args[0],args[1], false);
                 }
             } else{
-                System.out.println("FIchiers mal formattés");
+                System.out.println("Fichiers mal formatés");
             }
         }
 

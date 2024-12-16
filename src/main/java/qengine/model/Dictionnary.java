@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class Dictionnary {
     private LinkedHashMap<Term, Integer> dictionary = new LinkedHashMap<>();
@@ -22,18 +23,15 @@ public class Dictionnary {
     ///
     /// Créé l'ordre pour accéder plus rapidement à un élément selon sa récurrence
     public void createCodex() {
-        List<Map.Entry<Term, Integer>> entryList = new ArrayList<>(dictionary.entrySet());
-
-        // Trier la liste par ordre décroissant des valeurs
-        entryList.sort((entry1, entry2) -> entry2.getValue().compareTo(entry1.getValue()));
-
-        // Reconstruire une LinkedHashMap triée
-        LinkedHashMap<Term, Integer> sortedDictionary = new LinkedHashMap<>();
-        for (Map.Entry<Term, Integer> entry : entryList) {
-            sortedDictionary.put(entry.getKey(), entry.getValue());
-        }
-
-        this.dictionary = sortedDictionary;
+        this.dictionary = dictionary.entrySet()
+                .parallelStream() // Utilise un ParallelStream pour le tri
+                .sorted(Map.Entry.<Term, Integer>comparingByValue().reversed())
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        (e1, e2) -> e1, // Résolution des doublons (inutile ici)
+                        LinkedHashMap::new // Conserver l'ordre
+                ));
     }
 
     /// Donne la clé dans le dictionnaire depuis un terme.
