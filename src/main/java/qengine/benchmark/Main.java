@@ -208,7 +208,7 @@ public class Main {
     public static void main(String[] args) throws IOException {
         args = new String[3];
         args[0] = "data/merged.queryset";
-        args[1] = "data/500K.nt";
+        args[1] = "data/2M.nt";
         args[2] = "true";
 
         if(args.length < 2) {

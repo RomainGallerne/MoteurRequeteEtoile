@@ -9,6 +9,14 @@ import java.util.stream.Collectors;
 public class Dictionnary {
     private LinkedHashMap<Term, Integer> dictionary = new LinkedHashMap<>();
     private List<Term> keys;
+    private final Map<Term, Integer> termToIndexMap = new HashMap<>();
+
+    /// Remplit un index inversté pour une récupération facilité des clés.
+    public void initializeKeyMap() {
+        for (int i = 0; i < keys.size(); i++) {
+            termToIndexMap.put(keys.get(i), i);
+        }
+    }
 
     /// Ajoute une term au dictionnaire s'il n'est pas présent
     ///
@@ -36,18 +44,12 @@ public class Dictionnary {
     /// Donne la clé dans le dictionnaire depuis un terme.
     /// Renvoie -1 si la clé n'existe pas.
     ///
-    /// Accès max en O(n) en théorie mais O(log n) en pratique
-    /// car plus le terme est fréquent, plus il est en haut du dictionnaire.
+    /// Accès instantané -> O(1)
     public int getKey(Term term) {
-        if(!term.isLiteral()) {return -1;}
-
-        for (int i = 0; i < keys.size(); i++) {
-            if (keys.get(i).equals(term)) {
-                return i;
-            }
+        if (!term.isLiteral()) {
+            return -1;
         }
-
-        return -1;
+        return termToIndexMap.getOrDefault(term, -1);
     }
 
     /// Donne la valeur depuis une clé.

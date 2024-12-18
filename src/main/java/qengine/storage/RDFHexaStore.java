@@ -70,6 +70,7 @@ public class RDFHexaStore implements RDFStorage {
     **/
     public void dico_createCodex() {
         this.dictionnary.createCodex();
+        this.dictionnary.initializeKeyMap();
     }
 
     public int[] dico_encodeTriplet(RDFAtom rdfAtom) {
