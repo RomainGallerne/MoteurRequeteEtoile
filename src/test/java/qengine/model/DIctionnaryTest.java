@@ -100,11 +100,11 @@ public class DIctionnaryTest {
 
         dictionnary.createCodex();
 
-        int[] encodedTriplet1 = dictionnary.encodeTriplet(rdfAtom1);
+        int[] encodedTriplet1 = dictionnary.encodeTriplet(rdfAtom2);
 
-        assertEquals(1, encodedTriplet1[0], "The first value should be 1");
-        assertEquals(0, encodedTriplet1[1], "The second value should be 0");
-        assertEquals(2, encodedTriplet1[2], "The third value should be 2");
+        assertEquals(3, encodedTriplet1[0], "The first value should be 3");
+        assertEquals(1, encodedTriplet1[1], "The second value should be 1");
+        assertEquals(4, encodedTriplet1[2], "The third value should be 4");
     }
 
     @Test
@@ -127,7 +127,7 @@ public class DIctionnaryTest {
 
         RDFAtom decodedRDFAtom = null;
         try {
-            decodedRDFAtom = dictionnary.decodeTriplet(new int[]{1,0,2});
+            decodedRDFAtom = dictionnary.decodeTriplet(new int[]{0,1,2});
         } catch (ValueNotFoundException e) {
             throw new RuntimeException(e);
         }

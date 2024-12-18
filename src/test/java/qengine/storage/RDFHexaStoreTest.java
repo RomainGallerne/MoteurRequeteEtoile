@@ -47,6 +47,8 @@ public class RDFHexaStoreTest {
         store.add_to_dico(rdfAtom1.getTerms());
         store.add_to_dico(rdfAtom2.getTerms());
 
+        store.dico_createCodex();
+
         assertTrue(store.addAll(rdfAtoms.stream()), "Les RDFAtoms devraient être ajoutés avec succès.");
 
         // Vérifier que tous les atomes sont présents
@@ -58,6 +60,8 @@ public class RDFHexaStoreTest {
         store = new RDFHexaStore();
         store.add_to_dico(rdfAtom1.getTerms());
         store.add_to_dico(rdfAtom2.getTerms());
+
+        store.dico_createCodex();
 
         assertTrue(store.addAll(rdfAtoms), "Les RDFAtoms devraient être ajoutés avec succès.");
 
@@ -74,6 +78,8 @@ public class RDFHexaStoreTest {
 
         store.add_to_dico(atom1.getTerms());
 
+        store.dico_createCodex();
+
         assertTrue(store.add(new RDFAtom(SUBJECT_1, PREDICATE_1, OBJECT_1)));
     }
 
@@ -83,6 +89,9 @@ public class RDFHexaStoreTest {
         RDFAtom atom1 = new RDFAtom(SUBJECT_1, PREDICATE_1, OBJECT_1);
 
         store.add_to_dico(atom1.getTerms());
+
+        store.dico_createCodex();
+
         store.add(atom1);
 
         assertFalse(store.add(new RDFAtom(SUBJECT_1, PREDICATE_1, OBJECT_1)));
@@ -98,6 +107,8 @@ public class RDFHexaStoreTest {
         store.add_to_dico(atom1.getTerms());
         store.add_to_dico(atom2.getTerms());
         store.add_to_dico(atom3.getTerms());
+
+        store.dico_createCodex();
 
         store.add(atom1); // RDFAtom(subject1, triple, object1)
         store.add(atom2); // RDFAtom(subject2, triple, object2)

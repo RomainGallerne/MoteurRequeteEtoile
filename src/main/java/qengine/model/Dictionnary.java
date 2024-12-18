@@ -3,14 +3,12 @@ package qengine.model;
 import fr.boreal.model.logicalElements.api.Term;
 import qengine.exceptions.ValueNotFoundException;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Dictionnary {
     private LinkedHashMap<Term, Integer> dictionary = new LinkedHashMap<>();
+    private List<Term> keys;
 
     /// Ajoute une term au dictionnaire s'il n'est pas présent
     ///
@@ -23,6 +21,7 @@ public class Dictionnary {
     ///
     /// Créé l'ordre pour accéder plus rapidement à un élément selon sa récurrence
     public void createCodex() {
+        this.keys = new ArrayList<>(dictionary.keySet());
         this.dictionary = dictionary.entrySet()
                 .parallelStream() // Utilise un ParallelStream pour le tri
                 .sorted(Map.Entry.<Term, Integer>comparingByValue().reversed())
@@ -41,7 +40,6 @@ public class Dictionnary {
     /// car plus le terme est fréquent, plus il est en haut du dictionnaire.
     public int getKey(Term term) {
         if(!term.isLiteral()) {return -1;}
-        List<Term> keys = new ArrayList<>(dictionary.keySet());
 
         for (int i = 0; i < keys.size(); i++) {
             if (keys.get(i).equals(term)) {
@@ -56,7 +54,6 @@ public class Dictionnary {
     ///
     /// Accès instantanée -> O(1)
     public Term getValue(int index) throws ValueNotFoundException {
-        List<Term> keys = new ArrayList<>(dictionary.keySet());
 
         if (index < 0 || index >= keys.size()) {
             throw new ValueNotFoundException(index);
@@ -71,22 +68,19 @@ public class Dictionnary {
     /// Accès max en O(n) mais à calculer précisément
     public int[] encodeTriplet(RDFAtom triplet) {
         Term[] terms = triplet.getTerms();
-        List<Integer> encodedTerms = new ArrayList<>();
+        List<Integer> encodedTerms = new ArrayList<>(terms.length); // Prédéfinir la capacité
 
+        Map<Term, Integer> cache = new HashMap<>();
         for (Term term : terms) {
             if (term.isLiteral()) {
-                int term_key = getKey(term);
+                int term_key = cache.computeIfAbsent(term, this::getKey);
                 encodedTerms.add(term_key);
             }
         }
 
-        int[] result = new int[encodedTerms.size()];
-        for (int i = 0; i < encodedTerms.size(); i++) {
-            result[i] = encodedTerms.get(i);
-        }
-
-        return result;
+        return encodedTerms.stream().mapToInt(Integer::intValue).toArray();
     }
+
 
 
     /// Décode un triplet de clé et renvoie un triplet RDF

@@ -8,6 +8,7 @@ import qengine.storage.RDFHexaStore;
 import javax.swing.*;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.*;
 
 import static qengine.program.Utils.*;
 
@@ -63,8 +64,7 @@ public class Main {
         }
     }
 
-    private Set<Set<Substitution>> runBenchmark_hexastore(List<StarQuery> starQueries){
-        // Execution des 20% de requête pour chauffer la JVM
+    private Set<Set<Substitution>> runBenchmark_hexastore(List<StarQuery> starQueries) {
         int twentyPercentCount = (int) Math.ceil(starQueries.size() * 0.2);
         List<StarQuery> initialQueries = starQueries.subList(0, twentyPercentCount);
         List<StarQuery> remainingQueries = starQueries.subList(twentyPercentCount, starQueries.size());
@@ -82,10 +82,9 @@ public class Main {
         // Execution des 80% de requêtes restantes
         List<Set<Substitution>> remainingResults = executeWithHexastore(remainingQueries, hexastore, false);
 
-        report = timer.stop();
-
-        System.out.print("[BENCHMARK HEXASTORE] : ");
-        System.out.println(report);
+            report = timer.stop();
+            System.out.print("[BENCHMARK HEXASTORE] : ");
+            System.out.println(report);
 
         return new HashSet<>(remainingResults);
     }
@@ -207,8 +206,10 @@ public class Main {
     }
 
     public static void main(String[] args) throws IOException {
-        // args[0] = FILE_PATH
-        // args[1] = DATA_PATH
+        args = new String[3];
+        args[0] = "data/merged.queryset";
+        args[1] = "data/500K.nt";
+        args[2] = "true";
 
         if(args.length < 2) {
             System.out.println("Merci de fournir au moins deux arguments:");
