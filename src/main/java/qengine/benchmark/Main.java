@@ -69,22 +69,22 @@ public class Main {
         List<StarQuery> initialQueries = starQueries.subList(0, twentyPercentCount);
         List<StarQuery> remainingQueries = starQueries.subList(twentyPercentCount, starQueries.size());
 
-        ExecutionTimer timer = new ExecutionTimer();
-        timer.start();
+        System.gc();
         executeWithHexastore(initialQueries, hexastore, false);
-        ExecutionTimer.TimerReport report = timer.stop();
+        ExecutionTimer.TimerReport report;
 
-        System.out.println("[INFO] 20% des requêtes ont été exécutés avec l'hexastore. ESTIMATION TEMPS RESTANT : " + ((report.getRealTime()*4.0)/1000.0)/60 + " min.");
-
-        timer = new ExecutionTimer();
+        Runtime runtime = Runtime.getRuntime();
+        ExecutionTimer timer = new ExecutionTimer();
         timer.start();
 
         // Execution des 80% de requêtes restantes
         List<Set<Substitution>> remainingResults = executeWithHexastore(remainingQueries, hexastore, false);
 
-            report = timer.stop();
-            System.out.print("[BENCHMARK HEXASTORE] : ");
-            System.out.println(report);
+        report = timer.stop();
+        long usedMemory = runtime.totalMemory() - runtime.freeMemory();;
+        System.out.println("[BENCHMARK HEXASTORE] : ");
+        System.out.println("Mémoire utilisée : " + usedMemory / (1024 * 1024) + " MB");
+        System.out.println(report);
 
         return new HashSet<>(remainingResults);
     }
@@ -95,9 +95,11 @@ public class Main {
         List<StarQuery> initialQueries = starQueries.subList(0, twentyPercentCount);
         List<StarQuery> remainingQueries = starQueries.subList(twentyPercentCount, starQueries.size());
 
+        System.gc();
         executeWithIntegraal(rdf_data, initialQueries, false);
 
-        // Instancier le timer
+        Runtime runtime = Runtime.getRuntime();
+
         ExecutionTimer timer = new ExecutionTimer();
         timer.start();
 
@@ -105,7 +107,9 @@ public class Main {
         List<Set<Substitution>> remainingResults = executeWithIntegraal(rdf_data, remainingQueries, false);
 
         ExecutionTimer.TimerReport report = timer.stop();
+        long usedMemory = runtime.totalMemory() - runtime.freeMemory();;
         System.out.println("[BENCHMARK INTEGRAAL] : ");
+        System.out.println("Mémoire utilisée : " + usedMemory / (1024 * 1024) + " MB");
         System.out.println(report);
 
         return new HashSet<>(remainingResults);
