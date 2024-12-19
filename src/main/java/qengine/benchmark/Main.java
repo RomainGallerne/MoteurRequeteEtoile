@@ -210,10 +210,10 @@ public class Main {
     }
 
     public static void main(String[] args) throws IOException {
-        args = new String[3];
-        args[0] = "data/merged.queryset";
-        args[1] = "data/2M.nt";
-        args[2] = "true";
+//        args = new String[3];
+//        args[0] = "data/merged.queryset";
+//        args[1] = "data/2M.nt";
+//        args[2] = "true";
 
         if(args.length < 2) {
             System.out.println("Merci de fournir au moins deux arguments:");
