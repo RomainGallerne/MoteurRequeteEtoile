@@ -31,6 +31,7 @@ public class DIctionnaryTest {
         dictionnary.addTerm(PREDICATE_1);
 
         dictionnary.createCodex();
+        dictionnary.initializeKeyMap();
 
         assertEquals(0, dictionnary.getKey(SUBJECT_1), "SUBJECT_1 is supposed to be on first index");
     }
@@ -39,6 +40,7 @@ public class DIctionnaryTest {
     public void testGetVariableKey() {
         Dictionnary dictionnary = new Dictionnary();
         dictionnary.createCodex();
+        dictionnary.initializeKeyMap();
 
         assertEquals(-1, dictionnary.getKey(VAR_X));
     }
@@ -50,6 +52,7 @@ public class DIctionnaryTest {
         dictionnary.addTerm(PREDICATE_1);
 
         dictionnary.createCodex();
+        dictionnary.initializeKeyMap();
 
         assertEquals(-1, dictionnary.getKey(SUBJECT_1));
     }
@@ -63,6 +66,7 @@ public class DIctionnaryTest {
         dictionnary.addTerm(PREDICATE_1);
 
         dictionnary.createCodex();
+        dictionnary.initializeKeyMap();
 
         try {
             assertEquals(SUBJECT_1, dictionnary.getValue(0), "first value is supposed to be on SUBJECT_1");
@@ -78,6 +82,7 @@ public class DIctionnaryTest {
         dictionnary.addTerm(PREDICATE_1);
 
         dictionnary.createCodex();
+        dictionnary.initializeKeyMap();
 
         assertThrows(ValueNotFoundException.class, () -> dictionnary.getValue(3));
     }
@@ -99,6 +104,7 @@ public class DIctionnaryTest {
         }
 
         dictionnary.createCodex();
+        dictionnary.initializeKeyMap();
 
         int[] encodedTriplet1 = dictionnary.encodeTriplet(rdfAtom2);
 
@@ -124,6 +130,7 @@ public class DIctionnaryTest {
         }
 
         dictionnary.createCodex();
+        dictionnary.initializeKeyMap();
 
         RDFAtom decodedRDFAtom = null;
         try {
@@ -140,6 +147,7 @@ public class DIctionnaryTest {
         Dictionnary dictionnary = new Dictionnary();
         dictionnary.addTerm(SUBJECT_1);
         dictionnary.createCodex();
+        dictionnary.initializeKeyMap();
 
         assertEquals("subject1 : 1\n", dictionnary.toString(), "ToString is supposed to return 'term : key'");
     }
