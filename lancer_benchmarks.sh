@@ -2,10 +2,10 @@
 
 # Définir les chemins des fichiers JAR
 JAR_FILES=(
+    "qengine_500K.jar"
+    "qengine_500K_unif.jar"
     "qengine_2M.jar"
     "qengine_2M_unif.jar"
-    "qengine_500k.jar"
-    "qengine_500k_unif.jar"
 )
 
 # Boucler à travers chaque fichier JAR et l'exécuter avec java
