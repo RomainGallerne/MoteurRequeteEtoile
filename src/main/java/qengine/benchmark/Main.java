@@ -4,13 +4,15 @@ import fr.boreal.model.logicalElements.api.Substitution;
 import qengine.model.RDFAtom;
 import qengine.model.StarQuery;
 import qengine.storage.RDFHexaStore;
+import qengine_PLEV.storage.RDFHexaStore_PLEV;
 
 import javax.swing.*;
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.*;
 
 import static qengine.program.Utils.*;
+import static qengine_PLEV.benchmark.ConcurrentBenchmark.buildRDFStore;
+import static qengine_PLEV.benchmark.ConcurrentBenchmark.executeWithConcurrent;
 
 public class Main {
     private static final RDFHexaStore hexastore = new RDFHexaStore();
@@ -30,6 +32,9 @@ public class Main {
         List<Set<Substitution>> integraalResults = executeWithIntegraal(rdf_data, starQueries, false);
         System.out.println("[INFO] Comptage du nombre de réponse par requêtes terminé.");
 
+        // Définition de l'hexastore concurrent
+        RDFHexaStore_PLEV concurrentstore = buildRDFStore(rdf_data);
+
         if(uniformisation) {
             // Uniformisation des résultats
             integraalResults = uniformizeList(starQueries, integraalResults);
@@ -48,6 +53,7 @@ public class Main {
 
         Set<Set<Substitution>> integraalSet = runBenchmark_integraal(starQueries, rdf_data);
         Set<Set<Substitution>> hexastoreSet = runBenchmark_hexastore(starQueries);
+        runBenchmark_concurrent(starQueries, concurrentstore);
 
         //Test de correction
         if (integraalSet.containsAll(hexastoreSet)) {
@@ -113,6 +119,29 @@ public class Main {
         System.out.println(report);
 
         return new HashSet<>(remainingResults);
+    }
+
+    private void runBenchmark_concurrent(List<StarQuery> starQueries, RDFHexaStore_PLEV concurrentstore) {
+        int twentyPercentCount = (int) Math.ceil(starQueries.size() * 0.2);
+        List<StarQuery> initialQueries = starQueries.subList(0, twentyPercentCount);
+        List<StarQuery> remainingQueries = starQueries.subList(twentyPercentCount, starQueries.size());
+
+        System.gc();
+        executeWithConcurrent(initialQueries, concurrentstore);
+        ExecutionTimer.TimerReport report;
+
+        Runtime runtime = Runtime.getRuntime();
+        ExecutionTimer timer = new ExecutionTimer();
+        timer.start();
+
+        // Execution des 80% de requêtes restantes
+        executeWithConcurrent(remainingQueries, concurrentstore);
+
+        report = timer.stop();
+        long usedMemory = runtime.totalMemory() - runtime.freeMemory();;
+        System.out.println("[BENCHMARK CONCURRENT] : ");
+        System.out.println("Mémoire utilisée : " + usedMemory / (1024 * 1024) + " MB");
+        System.out.println(report);
     }
 
 
@@ -210,10 +239,10 @@ public class Main {
     }
 
     public static void main(String[] args) throws IOException {
-//        args = new String[3];
-//        args[0] = "data/merged.queryset";
-//        args[1] = "data/2M.nt";
-//        args[2] = "true";
+        args = new String[3];
+        args[0] = "data/merged.queryset";
+        args[1] = "data/2M.nt";
+        args[2] = "true";
 
         if(args.length < 2) {
             System.out.println("Merci de fournir au moins deux arguments:");
@@ -221,10 +250,8 @@ public class Main {
             System.out.println("2 - Le chemin vers le fichier des data");
         } else {
             if(args[0].contains(".queryset") && args[1].contains(".nt")) {
-                if(args.length > 2) {
-                    if(args[2].equals("true")) {
-                        new Main(args[0],args[1], true);
-                    }
+                if(args.length > 2 && args[2].equals("true")) {
+                    new Main(args[0],args[1], true);
                 } else {
                     new Main(args[0],args[1], false);
                 }
@@ -233,7 +260,7 @@ public class Main {
             }
         }
 
-        // new QueryBenchmark("merged_1M.queryset","500K.nt");
+        // new Main("merged_1M.queryset","500K.nt");
     }
 
 }
