@@ -32,9 +32,6 @@ public class Main {
         List<Set<Substitution>> integraalResults = executeWithIntegraal(rdf_data, starQueries, false);
         System.out.println("[INFO] Comptage du nombre de réponse par requêtes terminé.");
 
-        // Définition de l'hexastore concurrent
-        RDFHexaStore_PLEV concurrentstore = buildRDFStore(rdf_data);
-
         if(uniformisation) {
             // Uniformisation des résultats
             integraalResults = uniformizeList(starQueries, integraalResults);
@@ -53,7 +50,6 @@ public class Main {
 
         Set<Set<Substitution>> integraalSet = runBenchmark_integraal(starQueries, rdf_data);
         Set<Set<Substitution>> hexastoreSet = runBenchmark_hexastore(starQueries);
-        runBenchmark_concurrent(starQueries, concurrentstore);
 
         //Test de correction
         if (integraalSet.containsAll(hexastoreSet)) {
@@ -68,6 +64,15 @@ public class Main {
         } else {
             System.out.println("Matching Incomplet");
         }
+
+        integraalSet = null;
+        hexastoreSet = null;
+
+        System.gc();
+
+        // Définition de l'hexastore concurrent
+        RDFHexaStore_PLEV concurrentstore = buildRDFStore(rdf_data);
+        runBenchmark_concurrent(starQueries, concurrentstore);
     }
 
     private Set<Set<Substitution>> runBenchmark_hexastore(List<StarQuery> starQueries) {
@@ -241,7 +246,7 @@ public class Main {
     public static void main(String[] args) throws IOException {
         args = new String[3];
         args[0] = "data/merged.queryset";
-        args[1] = "data/2M.nt";
+        args[1] = "data/500K.nt";
         args[2] = "true";
 
         if(args.length < 2) {
