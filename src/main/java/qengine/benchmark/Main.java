@@ -28,6 +28,8 @@ public class Main {
         starQueries= filterDuplicates(starQueries);
         System.out.println("[INFO] Taille après doublons supprimés : " + starQueries.size());
 
+        Collections.shuffle(starQueries);
+
         // Exécuter les requêtes
         List<Set<Substitution>> integraalResults = executeWithIntegraal(rdf_data, starQueries, false);
         System.out.println("[INFO] Comptage du nombre de réponse par requêtes terminé.");
